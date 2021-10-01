@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
-using Serilog;
-using Serilog.AspNetCore;
 using System;
 using DAL;
 
@@ -28,7 +26,6 @@ namespace ASP_NET
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
             //services.AddAutoMapper();
             services.AddSwaggerGen(c =>
             {
@@ -53,6 +50,7 @@ namespace ASP_NET
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddHealthChecks()
+                // Add a health check for a SQL Server database
                 .AddCheck(
                     "OrderingDB-check",
                     new SqlConnectionHealthCheck(Configuration.GetConnectionString("DefaultConnection")),
@@ -74,7 +72,6 @@ namespace ASP_NET
                app.UseExceptionHandler("/Error");
                app.UseHsts();
             }
-            app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

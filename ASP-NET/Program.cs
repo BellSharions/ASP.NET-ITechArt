@@ -10,8 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DAL;
-using Serilog;
-using Serilog.Events;
 
 namespace ASP_NET
 {
@@ -19,33 +17,8 @@ namespace ASP_NET
     {
         public static void Main(string[] args)
         {
-            try
-            {
-                string outputTemplate = "{Timestamp:yyyy-MM-dd HH: mm: ss.fff} [{Level}] {Message} {NewLine} {Exception}";
-                Log.Logger = new
-                    LoggerConfiguration().MinimumLevel.Debug().
-                    WriteTo.Logger(l => l.Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Information).
-                    WriteTo.File(
-                    path: "..\\Logs\\Information.txt",
-                    outputTemplate: outputTemplate)).
-                    WriteTo.Logger(l => l.Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Warning).
-                    WriteTo.File(
-                    path: "..\\Logs\\Warning.txt",
-                    outputTemplate: outputTemplate)).
-                    WriteTo.Logger(l => l.Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Error).
-                    WriteTo.File(
-                    path: "..\\Logs\\Error.txt",
-                    outputTemplate: outputTemplate)).
-                    WriteTo.Logger(l => l.Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Fatal).
-                    WriteTo.File(
-                    path: "..\\Logs\\Fatal.txt",
-                    outputTemplate: outputTemplate)).
-                    WriteTo.Logger(l => l.Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Debug).
-                    WriteTo.File(
-                    path: "..\\Logs\\Debug.txt",
-                    outputTemplate: outputTemplate)).
-                    CreateLogger();
-                var host = CreateHostBuilder(args).Build();
+
+            var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -55,23 +28,13 @@ namespace ASP_NET
 
             host.Run();
             CreateHostBuilder(args).Build().Run();
-            }
-            catch(Exception ex)
-            {
-                Log.Error(ex, ex.Message);
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
         }
-
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                }).UseSerilog();
+                });
     }
 }
