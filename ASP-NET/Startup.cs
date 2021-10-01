@@ -7,15 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
-using ASP_NET.Data;
-using Microsoft.AspNetCore.Http;
-using ASP_NET.Controllers;
+using System;
+using DAL;
 
 namespace ASP_NET
 {
@@ -32,13 +27,35 @@ namespace ASP_NET
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddAutoMapper();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "ASP.NET",
+                    Description = "Example of SwaggerUI",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Yury Chertko",
+                        Email = "bellsharions@gmail.com",
+                        Url = new Uri("https://github.com/BellSharions"),
+                    }
+                });
+            });
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddHealthChecks()
+                // Add a health check for a SQL Server database
+                .AddCheck(
+                    "OrderingDB-check",
+                    new SqlConnectionHealthCheck(Configuration.GetConnectionString("DefaultConnection")),
+                    HealthStatus.Unhealthy,
+                    new string[] { "orderingdb" });
             services.AddRazorPages();
         }
 
@@ -60,6 +77,7 @@ namespace ASP_NET
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET API");
             });
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -71,6 +89,7 @@ namespace ASP_NET
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/hc");
                 endpoints.MapControllerRoute(
                         name: "default",
                         pattern: "{controller=Home}/{action=GetInfo}");

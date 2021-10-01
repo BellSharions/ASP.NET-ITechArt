@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>aspnet-ASP_NET-0775F253-3518-46A6-A120-33912C6AFE68</UserSecretsId>
     <RootNamespace>ASP_NET</RootNamespace>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
