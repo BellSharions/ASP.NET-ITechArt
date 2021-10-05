@@ -13,6 +13,8 @@ using Serilog;
 using Serilog.AspNetCore;
 using System;
 using DAL;
+using DAL.Entities;
+using DAL.Entities.Roles;
 
 namespace ASP_NET
 {
@@ -50,7 +52,7 @@ namespace ASP_NET
                     Configuration.GetConnectionString("DefaultConnection"),
                     x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<User>/*<User>*/(options => options.SignIn.RequireConfirmedAccount = true) //IdentityUser<Guid>
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddHealthChecks()
                 .AddCheck(
