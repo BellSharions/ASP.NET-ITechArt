@@ -97,7 +97,7 @@ namespace ASP_NET
                 endpoints.MapHealthChecks("/hc");
                 endpoints.MapControllerRoute(
                         name: "default",
-                        pattern: "{controller=Home}/{action=GetInfo}");
+                        pattern: "{controller=Home}/{action=Index}");
             });
         }
     }

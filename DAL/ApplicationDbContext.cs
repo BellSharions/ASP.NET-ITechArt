@@ -10,7 +10,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace DAL
 {
-    public class ApplicationDbContext : IdentityDbContext<User, UserRole, int> //needs rework
+    public class ApplicationDbContext : IdentityDbContext<User, Role, int> //needs rework
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

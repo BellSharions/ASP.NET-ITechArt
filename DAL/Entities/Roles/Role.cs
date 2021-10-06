@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Entities.Roles
 {
-    public class UserRole : IdentityRole<int>
+    public class Role : IdentityRole<int>
     {
     }
 }

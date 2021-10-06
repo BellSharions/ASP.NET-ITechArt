@@ -22,10 +22,9 @@ namespace ASP_NET
             try
             {
                 string outputTemplate = "{Timestamp:yyyy-MM-dd HH: mm: ss.fff} [{Level}] {Message} {NewLine} {Exception}";
-                Log.Logger = new    
-                    LoggerConfiguration().MinimumLevel.Debug().
-                    WriteTo.File(path: $"..\\Logs\\{LogEventLevel.Information}-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.txt", outputTemplate: outputTemplate).
-                    CreateLogger();
+                Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().
+                   WriteTo.File(path: $"..\\Logs\\{LogEventLevel.Fatal}-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.txt", outputTemplate: outputTemplate).
+                   CreateLogger();
                 var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())

@@ -7,8 +7,7 @@ namespace ASP_NET.Controllers
 {
     public class HomeController : Controller
     {
-        //[Role="Admin"]
-        //[Authorize]
+        [Authorize]
         public string GetInfo()
         {
             Log.Logger.Information("returning 'Hello world!' from GetInfo() method");
@@ -16,7 +15,8 @@ namespace ASP_NET.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            return Ok();
+            //return View();
         }
     }
 }
