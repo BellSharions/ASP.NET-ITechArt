@@ -7,7 +7,7 @@ namespace ASP_NET.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public string GetInfo()
         {
             Log.Logger.Information("returning 'Hello world!' from GetInfo() method");

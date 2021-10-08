@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DAL;
 using Serilog;
+using Serilog.Sinks.Map;
 using Serilog.Events;
 
 namespace ASP_NET
@@ -21,10 +22,12 @@ namespace ASP_NET
         {
             try
             {
-                string outputTemplate = "{Timestamp:yyyy-MM-dd HH: mm: ss.fff} [{Level}] {Message} {NewLine} {Exception}";
+                string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message} {NewLine} {Exception}";
                 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().
-                   WriteTo.File(path: $"..\\Logs\\{LogEventLevel.Fatal}-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.txt", outputTemplate: outputTemplate).
-                   CreateLogger();
+                    WriteTo.Map(
+                    evt => evt.Level,
+                    (level, wt) => wt.File("../Logs/" + level + $"-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.log", outputTemplate: outputTemplate)).
+                    CreateLogger();
                 var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())

@@ -9,5 +9,11 @@ namespace DAL.Entities.Roles
 {
     public class Role : IdentityRole<int>
     {
+        public Role(string name, string normalizedName)
+        {
+            Name = name;
+            NormalizedName = normalizedName;
+            ConcurrencyStamp = (new Random().Next()).ToString();
+        }
     }
 }
