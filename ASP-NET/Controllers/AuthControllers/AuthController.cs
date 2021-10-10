@@ -11,6 +11,8 @@ using Business;
 using Microsoft.Extensions.Options;
 using DAL.Entities.Roles;
 using System.Web;
+using ASP_NET.Models;
+using AutoMapper;
 
 namespace ASP_NET.Controllers.AuthControllers
 {
@@ -22,80 +24,52 @@ namespace ASP_NET.Controllers.AuthControllers
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly SmtpOptions _options;
+        private readonly IMapper _mapper;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IOptions<SmtpOptions> SmtpOptionsAccessor)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IOptions<SmtpOptions> SmtpOptionsAccessor, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _options = SmtpOptionsAccessor.Value;
-        }
-
-        [Authorize(Roles = "Admin")]
-        [Route("create-roles")]
-        [HttpGet]
-        public async Task EnsureRolesCreated()
-        {
-            var adminRole = new Role("Admin", "Administrator");
-            var userRole = new Role("User", "User");
-            if (_roleManager.RoleExistsAsync(adminRole.Name).Result && _roleManager.RoleExistsAsync(userRole.Name).Result)
-            {
-                await _roleManager.CreateAsync(adminRole);
-                await _roleManager.CreateAsync(userRole);
-            }
+            _mapper = mapper;
         }
 
         [Route("sign-in")]
         [HttpPost]
-        public async Task<IActionResult> SignIn()
+        public async Task<IActionResult> SignIn([FromBody] UserModel info)
         {
-            using (var reader = new StreamReader(Request.Body))
+            var foundUser = _userManager.FindByEmailAsync(info.Email)?.Result;
+            if (Regex.Match(info.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$").Success &&
+                    Regex.Match(info.Password, @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$").Success &&
+                    foundUser.EmailConfirmed &&
+                    await _userManager.CheckPasswordAsync(foundUser, info.Password))
             {
-                var body = reader.ReadToEndAsync().Result.Split(" ");
-                var email = body[0];
-                var password = body[1];
-                if (Regex.Match(email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$").Success &&
-                    Regex.Match(password, @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$").Success &&
-                    _userManager.FindByEmailAsync(email).Result.EmailConfirmed)
-                {
-                    User user = new() {
-                        Id = _userManager.FindByEmailAsync(email).Result.Id,
-                        UserName = email,
-                        Email = email,
-                        SecurityStamp = Guid.NewGuid().ToString() };
-                    await _userManager.UpdateSecurityStampAsync(user);
-                    user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, password);
-                    await _signInManager.SignInAsync(user, true);
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                await _signInManager.SignInAsync(foundUser, true);
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
             }
         }
 
         [Route("sign-up")]
         [HttpPost]
-        public async Task<IActionResult> SignUp()
-        {
-            using var reader = new StreamReader(Request.Body);
-            var body = (reader.ReadToEndAsync()).Result.Split(" ");
-            var email = body[0];
-            var password = body[1];
-            User user = new() { 
-                UserName = email, 
-                Email = email, 
-                PasswordHash = password}; //change to work with view model instead of working with DAL entity? 
-            if (Regex.IsMatch(email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$") && 
-                Regex.IsMatch(password, @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=]).*$") && 
-                !_userManager.FindByEmailAsync(email).IsCompleted)
-            {
-                await _userManager.CreateAsync(user, password);
+        public async Task<IActionResult> SignUp([FromBody] UserModel info)
+        {//change to work with view model instead of working with DAL entity? 
+            if (Regex.IsMatch(info.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$") && 
+                Regex.IsMatch(info.Password, @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=]).*$") && 
+                !_userManager.FindByEmailAsync(info.Email).IsCompletedSuccessfully &&
+                ModelState.IsValid)
+            { 
+                User user = _mapper.Map<User>(info);
+                user.UserName = info.Email;
+                await _userManager.CreateAsync(user, info.Password);
                 await _userManager.AddToRoleAsync(user, "User");
                 var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
                 var callbackUrl = $"https://localhost:44343/api/auth/email-confirmation?id={user.Id}&token={token}";
-                var sender = new MailSender(_options).SendAsync(email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
+                var sender = new MailSender(_options).SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
                 return Created("api/auth/sign-up", user);
             }
             else

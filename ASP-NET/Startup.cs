@@ -18,6 +18,7 @@ using DAL.Entities.Roles;
 using Business;
 using System.Threading.Tasks;
 using ASP_NET.Controllers.AuthControllers;
+using ASP_NET.Profiles;
 
 namespace ASP_NET
 {
@@ -35,7 +36,7 @@ namespace ASP_NET
         {
             services.Configure<SmtpOptions>(
             Configuration.GetSection(nameof(SmtpOptions)));
-            //services.AddAutoMapper();
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -63,17 +64,18 @@ namespace ASP_NET
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
+            services.AddTransient<SampleData>();
             services.AddHealthChecks()
                 .AddCheck(
                     "OrderingDB-check",
                     new SqlConnectionHealthCheck(Configuration.GetConnectionString("DefaultConnection")),
                     HealthStatus.Unhealthy,
                     new string[] { "orderingdb" });
-            services.AddRazorPages();
+            services.AddRazorPages().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, SampleData seeder, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -85,6 +87,7 @@ namespace ASP_NET
                app.UseExceptionHandler("/Error");
                app.UseHsts();
             }
+            seeder.SeedRoles();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
