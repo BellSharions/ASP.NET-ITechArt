@@ -1,5 +1,6 @@
 ﻿using DAL.Entities.Roles;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP_NET.Models
 {
@@ -9,6 +10,7 @@ namespace ASP_NET.Models
         [SwaggerSchema("Specified user name")]
         public string UserName {  get; set; }
         [SwaggerSchema("User phone number")]
+        [Phone]
         public string PhoneNumber {  get; set; }
         [SwaggerSchema("User email", Nullable = false)]
         public string Email { get; set; }
