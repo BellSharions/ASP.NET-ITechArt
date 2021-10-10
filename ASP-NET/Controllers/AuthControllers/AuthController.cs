@@ -13,11 +13,13 @@ using DAL.Entities.Roles;
 using System.Web;
 using ASP_NET.Models;
 using AutoMapper;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ASP_NET.Controllers.AuthControllers
 {
     [ApiController]
     [Route("api/auth")]
+    [Produces("application/json")]
     public class AuthController : Controller
     {
         private readonly UserManager<User> _userManager;
@@ -35,9 +37,16 @@ namespace ASP_NET.Controllers.AuthControllers
             _mapper = mapper;
         }
 
-        [Route("sign-in")]
-        [HttpPost]
-        public async Task<IActionResult> SignIn([FromBody] UserModel info)
+        [HttpPost("sign-in")]
+        [SwaggerOperation(
+            Summary = "Signs in specified user",
+            Description = "Requires email and pasword in json format",
+            OperationId = "SignIn",
+            Tags = new[] { "Authorization", "User" })]
+
+        [SwaggerResponse(200, "User was signed in")]
+        [SwaggerResponse(400, "User was not signed in due to invalid information")]
+        public async Task<IActionResult> SignIn([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
         {
             var foundUser = _userManager.FindByEmailAsync(info.Email)?.Result;
             if (Regex.Match(info.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$").Success &&
@@ -54,9 +63,15 @@ namespace ASP_NET.Controllers.AuthControllers
             }
         }
 
-        [Route("sign-up")]
-        [HttpPost]
-        public async Task<IActionResult> SignUp([FromBody] UserModel info)
+        [HttpPost("sign-up")]
+        [SwaggerOperation(
+            Summary = "Registeres new user",
+            Description = "Requires email and pasword in json format",
+            OperationId = "SignUp",
+            Tags = new[] { "Authorization", "User" })]
+        [SwaggerResponse(201, "User was created")]
+        [SwaggerResponse(400, "User was not created due to invalid information")]
+        public async Task<IActionResult> SignUp([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
         {//change to work with view model instead of working with DAL entity? 
             if (Regex.IsMatch(info.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$") && 
                 Regex.IsMatch(info.Password, @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=]).*$") && 
@@ -78,9 +93,15 @@ namespace ASP_NET.Controllers.AuthControllers
             }
         }
 
-        [Route("email-confirmation")]
-        [HttpGet]
-        public async Task<IActionResult> EmailConfirm(int id, string token)
+        [HttpGet("email-confirmation")]
+        [SwaggerOperation(
+            Summary = "Confirms email of registered user",
+            Description = "Requires id and token provided by generated url",
+            OperationId = "EmailConfirmation",
+            Tags = new[] { "Authorization", "User" })]
+        [SwaggerResponse(204, "Email was confirmed")]
+        [SwaggerResponse(400, "Email was not confirmed due to incorrect user/token")]
+        public async Task<IActionResult> EmailConfirm([SwaggerParameter("User ID", Required = true)]int id, [SwaggerParameter("Email confirmation token", Required = true)] string token)
         {
             if (_userManager.FindByIdAsync((id).ToString()).Result != null &&
                 (await _userManager.ConfirmEmailAsync(_userManager.FindByIdAsync((id).ToString()).Result, token)).Succeeded)

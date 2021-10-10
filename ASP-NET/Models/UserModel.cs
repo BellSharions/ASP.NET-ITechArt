@@ -1,13 +1,20 @@
 ﻿using DAL.Entities.Roles;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ASP_NET.Models
 {
+    [SwaggerSchema(Required = new[] { "Description" })]
     public class UserModel //future implementation is required
     {
+        [SwaggerSchema("Specified user name")]
         public string UserName {  get; set; }
+        [SwaggerSchema("User phone number")]
         public string PhoneNumber {  get; set; }
+        [SwaggerSchema("User email", Nullable = false)]
         public string Email { get; set; }
+        [SwaggerSchema("User unhashed password")]
         public string Password {  get; set; }
+        [SwaggerSchema("User address to delivery")]
         public string AdressDelivery {  get; set; }
 
     }

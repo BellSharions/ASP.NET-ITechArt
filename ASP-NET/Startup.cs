@@ -19,6 +19,8 @@ using Business;
 using System.Threading.Tasks;
 using ASP_NET.Controllers.AuthControllers;
 using ASP_NET.Profiles;
+using System.Reflection;
+using System.IO;
 
 namespace ASP_NET
 {
@@ -39,6 +41,7 @@ namespace ASP_NET
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
@@ -51,6 +54,7 @@ namespace ASP_NET
                         Url = new Uri("https://github.com/BellSharions"),
                     }
                 });
+                
             });
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -91,10 +95,7 @@ namespace ASP_NET
             seeder.SeedProducts();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET API");
-            });
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
