@@ -20,14 +20,14 @@ namespace ASP_NET.Controllers.InformationControllers
 
     [ApiController]
     [Route("api")]
-    public class InformationController : Controller
+    public class UserInformationController : Controller
     {
 
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly IMapper _mapper;
 
-        public InformationController(UserManager<User> userManager, RoleManager<Role> roleManager, IMapper mapper)
+        public UserInformationController(UserManager<User> userManager, RoleManager<Role> roleManager, IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;

@@ -57,7 +57,7 @@ namespace ASP_NET
                     Configuration.GetConnectionString("DefaultConnection"),
                     x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<User>/*<User>*/(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()//IdentityUser<Guid>
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()//IdentityUser<Guid>
                 .AddRoleManager<RoleManager>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.ConfigureApplicationCookie(options =>
@@ -75,7 +75,7 @@ namespace ASP_NET
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, SampleData seeder, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, SampleData seeder, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -88,6 +88,7 @@ namespace ASP_NET
                app.UseHsts();
             }
             seeder.SeedRoles();
+            seeder.SeedProducts();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
