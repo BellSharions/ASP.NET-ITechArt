@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Serilog;
-using DAL;
 
 namespace Business
 {

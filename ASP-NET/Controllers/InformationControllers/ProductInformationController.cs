@@ -1,5 +1,7 @@
 ﻿using ASP_NET.Models;
 using AutoMapper;
+using Business.Interfaces;
+using Business.Repositories;
 using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
@@ -21,13 +23,13 @@ namespace ASP_NET.Controllers.InformationControllers
     [Produces("application/json")]
     public class ProductInformationController : Controller
     {
-        private ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private IRepository<Product> ProductRep;
 
         public ProductInformationController(IMapper mapper, ApplicationDbContext context)
         {
             _mapper = mapper;
-            _context = context;
+            ProductRep = new ProductRepository(context);
         }
 
         [HttpGet("top-platforms")]
@@ -38,22 +40,11 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Search", "Product" })]
         [SwaggerResponse(200, "Returned top 3 platforms", typeof(IList<Product>))]
         [SwaggerResponse(400, "No products were found")]
-        public async Task<IActionResult> FindTopPlatforms()
+        public IActionResult FindTopPlatforms()
         {
-            if (_context.Products != null)
-            {
-                var topPlatforms =
-                    from products in _context.Products
-                    group products by products.Platform into productsGroup
-                    select new
-                    {
-                        Platform = productsGroup.Key.ToString(),
-                        Count = productsGroup.Count(),
-                    };
-                return Ok(topPlatforms.Take(3).ToList().OrderByDescending(u => u.Count));
-            }
-            else
+            if (ProductRep.GetList() == null)
                 return BadRequest("There are no products in the database");
+            return Ok(ProductRep.GetList().GroupBy(u => u.Platform).Select(u => new { Platform = u.Key.ToString(), Count = u.Count() }).OrderByDescending(u => u.Count).Take(3).ToList());
         }
 
         [HttpGet("")]
@@ -64,27 +55,22 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Search", "Product" })]
         [SwaggerResponse(200, "Returned a list of products by specified term", typeof(IList<Product>))]
         [SwaggerResponse(400, "No products were found")]
-        public async Task<IActionResult> SearchProduct([SwaggerParameter("Term used to search through Product table", Required = true)] string term, 
+        public IActionResult SearchProduct([SwaggerParameter("Term used to search through Product table", Required = true)] string term, 
                                                        [SwaggerParameter("Amount of items to return", Required = true)] int limit,
                                                        [SwaggerParameter("Amount of items to skip", Required = true)] int offset)
         {
-            if (_context.Products != null)
+            if (ProductRep.GetList() == null)
+                return BadRequest("No items were located");
+            var searchResult = ProductRep.GetList().Where(u=>u.Name == term).Select(u => new 
             {
-                var searchResult =
-                    (from product in _context.Products
-                     where product.Name == term
-                     select new
-                     {
-                         Id = product.Id,
-                         Name = product.Name,
-                         Platform = product.Platform.ToString(),
-                         DateCreated = product.DateCreated,
-                         TotalRating = product.TotalRating
-                     }).ToList();
-                return Ok(searchResult.Take(limit).Skip(offset));
-            }
-            else
-                return BadRequest("Please specify the term in search");
+                Id = u.Id,
+                Name = u.Name,
+                Platform = u.Platform.ToString(),
+                DateCreated = u.DateCreated,
+                TotalRating = u.TotalRating
+            })
+                .Skip(offset).Take(limit).ToList();
+            return Ok(searchResult);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]

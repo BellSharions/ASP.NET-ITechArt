@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Migrations\**" />
+    <Compile Remove="Profiles\**" />
     <Content Remove="Migrations\**" />
+    <Content Remove="Profiles\**" />
     <EmbeddedResource Remove="Migrations\**" />
+    <EmbeddedResource Remove="Profiles\**" />
     <None Remove="Migrations\**" />
+    <None Remove="Profiles\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Business.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ namespace DAL.Entities
 {
     public class Product
     {
-        [Key]
         public int Id {  get; set; }
         public string Name {  get; set; }
         public AvailablePlatforms Platform { get; set; }
@@ -25,8 +25,5 @@ namespace DAL.Entities
             TotalRating = totalRating;
         }
     }
-    public enum AvailablePlatforms
-    {
-        PC, XBOX, PlayStation, Switch
-    }
+    
 }
