@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business.Interfaces;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Serilog;
 
 namespace Business
 {
-    public class MailSender
+    public class MailSender : ISmtpService
     {
         private readonly string _host;
         private readonly int _port;

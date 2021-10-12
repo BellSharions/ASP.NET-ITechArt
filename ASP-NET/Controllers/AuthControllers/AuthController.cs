@@ -1,21 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using DAL.Entities;
-using System;
-using Business;
-using Microsoft.Extensions.Options;
-using DAL.Entities.Roles;
-using System.Web;
 using ASP_NET.Models;
 using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
 using Business.Interfaces;
-using Business.Repositories;
 using DAL;
 
 namespace ASP_NET.Controllers.AuthControllers
@@ -25,21 +13,13 @@ namespace ASP_NET.Controllers.AuthControllers
     [Produces("application/json")]
     public class AuthController : Controller
     {
-        IRepository<User> _userRepository;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly SmtpOptions _options;
+        IUserService _userService;
         private readonly IMapper _mapper;
-        private readonly string emailRegex = @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
-        private readonly string passwordRegex = @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=]).*$";
 
-        public AuthController(UserManager<User> userManager, ApplicationDbContext context, SignInManager<User> signInManager, IOptions<SmtpOptions> SmtpOptionsAccessor, IMapper mapper)
+        public AuthController(ApplicationDbContext context, IUserService userService, IMapper mapper)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _options = SmtpOptionsAccessor.Value;
             _mapper = mapper;
-            _userRepository = new UserRepository(context);
+            _userService = userService;
         }
 
         [HttpPost("sign-in")]
@@ -52,13 +32,9 @@ namespace ASP_NET.Controllers.AuthControllers
         [SwaggerResponse(400, "User was not signed in due to invalid information")]
         public async Task<IActionResult> SignIn([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
         {
-            var foundUser = _userManager.FindByEmailAsync(info.Email)?.Result;
-            if (!Regex.IsMatch(info.Email, emailRegex) && //have consts istead of strings
-                !Regex.IsMatch(info.Password, passwordRegex) &&
-                !foundUser.EmailConfirmed &&
-                !await _userManager.CheckPasswordAsync(foundUser, info.Password))
+            var result = await _userService.SigninAsync(info);
+            if (result == 400)
                 return BadRequest();
-            await _signInManager.SignInAsync(foundUser, true);
             return Ok();
         }
 
@@ -72,19 +48,10 @@ namespace ASP_NET.Controllers.AuthControllers
         [SwaggerResponse(400, "User was not created due to invalid information")]
         public async Task<IActionResult> SignUp([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
         {
-            if (!Regex.IsMatch(info.Email, emailRegex) && 
-                !Regex.IsMatch(info.Password, passwordRegex) && 
-                _userManager.FindByEmailAsync(info.Email).IsCompletedSuccessfully &&
-                !ModelState.IsValid)
-                return BadRequest();
-            User user = _mapper.Map<User>(info);
-            user.UserName = info.Email;
-            await _userManager.CreateAsync(user, info.Password);
-            await _userManager.AddToRoleAsync(user, "User");
-            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
-            var callbackUrl = $"https://localhost:44343/api/auth/email-confirmation?id={user.Id}&token={token}";
-            var sender = new MailSender(_options).SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
-            return Created("api/auth/sign-up", user);
+            var result = await _userService.RegisterAsync(info);
+            if(result == 200)
+            return Created("api/auth/sign-up", null);
+            return BadRequest();
         }
 
         [HttpGet("email-confirmation")]
@@ -97,9 +64,7 @@ namespace ASP_NET.Controllers.AuthControllers
         [SwaggerResponse(400, "Email was not confirmed due to incorrect user/token")]
         public async Task<IActionResult> EmailConfirm([SwaggerParameter("User ID", Required = true)]int id, [SwaggerParameter("Email confirmation token", Required = true)] string token)
         {
-            if (!(_userManager.FindByIdAsync((id).ToString()).Result == null) &&
-                !(await _userManager.ConfirmEmailAsync(_userManager.FindByIdAsync((id).ToString()).Result, token)).Succeeded)
-                return BadRequest();
+            var isConfirmed = await _userService.ConfirmEmailAsync(id, token);
             return NoContent();
         }
     }

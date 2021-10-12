@@ -1,8 +1,6 @@
 ﻿using ASP_NET.Models;
 using AutoMapper;
-using Business;
 using Business.Interfaces;
-using Business.Repositories;
 using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
@@ -10,13 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ASP_NET.Controllers.InformationControllers
@@ -27,17 +20,13 @@ namespace ASP_NET.Controllers.InformationControllers
     [Produces("application/json")]
     public class UserInformationController : Controller
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UserInformationController(UserManager<User> userManager, RoleManager<Role> roleManager, IMapper mapper, ApplicationDbContext context)
+        public UserInformationController(UserManager<User> userManager, IUserService userService, RoleManager<Role> roleManager, IMapper mapper, ApplicationDbContext context)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
             _mapper = mapper;
-            _userRepository = new UserRepository(context);
+            _userService = userService;
         }
 
         [Authorize(Roles = "User, Admin")]
@@ -51,13 +40,8 @@ namespace ASP_NET.Controllers.InformationControllers
         [SwaggerResponse(400, "User information was not updated")]
         public async Task<IActionResult> ChangeUserInfo([FromBody, SwaggerParameter("Modified user information", Required = true)] UserModel info)
         {
-            var foundUser = await _userRepository.Get(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value));
-            foundUser.UserName = info.UserName;
-            foundUser.Email = info.Email;
-            foundUser.PhoneNumber = info.PhoneNumber;
-            foundUser.adressDelivery = info.AdressDelivery;
-            _userRepository.Update(foundUser);
-            if(await _userRepository.Save() != 0)
+            var result = await _userService.UpdateUserInfoAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value), info);
+            if(result == null)
                 return BadRequest();
             return Ok();
 
@@ -71,10 +55,7 @@ namespace ASP_NET.Controllers.InformationControllers
             OperationId = "GetUser",
             Tags = new[] { "Information", "User" })]
         [SwaggerResponse(200, "Returned current user", typeof(User))]
-        public async Task<IActionResult> GetUser()
-        {
-            return Ok(await _userRepository.Get(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value));
-        }
+        public async Task<IActionResult> GetUser() => Ok(await _userService.FindUserByIdAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value)));
 
         [Authorize(Roles = "User, Admin")]
         [HttpPatch("user/password")]
@@ -87,21 +68,14 @@ namespace ASP_NET.Controllers.InformationControllers
         [SwaggerResponse(400, "Patch method was incorrect")]
         public async Task<IActionResult> ChangeUserPassword([FromBody, SwaggerParameter("PATCH method to change password", Required = true)] JsonPatchDocument<User> patchDoc)
         {
-            if (patchDoc == null) //change to avoid if nesting
+            if (patchDoc == null && !ModelState.IsValid)
                 return BadRequest(ModelState);
-            var user = await _userRepository.Get(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value));
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var newUser = user;
-            patchDoc.ApplyTo(newUser, ModelState);
-
-            if (!ModelState.IsValid && !(await _userManager.ResetPasswordAsync(user, token, newUser.PasswordHash)).Succeeded)
+            var result = await _userService.ChangePasswordAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value), patchDoc);
+            if (result == 400)
                 return BadRequest(ModelState);
-            return Created("user/password", user);
+            return Created("user/password", null);
         }
 
-        protected IActionResult Index()
-        {
-            return View();
-        }
+        protected IActionResult Index() => View();
     }
 }

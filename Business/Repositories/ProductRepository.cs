@@ -1,75 +1,30 @@
-﻿using Business.Interfaces;
+﻿using Business.DTO;
+using Business.Enums;
+using Business.Interfaces;
 using DAL;
 using DAL.Entities;
+using DAL.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Business.Repositories
 {
-    public class ProductRepository : IRepository<Product>
+    public class ProductRepository : GenericRepository<ApplicationDbContext, Product>,IProductRepository
     {
-        private ApplicationDbContext db;
+        public ProductRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public ProductRepository(ApplicationDbContext context)
-        {
-            this.db = context;
-        }
-        public async void Create(Product item)
-        {
-            await db.Products.AddAsync(item);
-        }
+        public async Task<List<TopPlatformDTO>> GetTopPlatformsAsync(int count = 3) => 
+            (await _dbContext.Products.GroupBy(u => u.Platform).Select(u => new TopPlatformDTO(u.Key.ToString(), u.Count())).ToListAsync()).OrderByDescending(u => u.Count).Take(count).ToList();
 
-        public async void Delete(int id)
-        {
-            db.Products.Remove(await db.Products.FindAsync(id));
-        }
+        public async Task<Product> GetProductByIdAsync(int id) => 
+            await _dbContext.Products.FirstOrDefaultAsync(t => t.Id == id);
 
-        private bool disposed = false;
-        public void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    db.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public async Task<Product> Get(int id)
-        {
-            return await db.Products.FindAsync(id);
-        }
-
-        public IEnumerable<Product> GetList()
-        {
-            return db.Products;
-        }
-
-        public async Task<int> Save()
-        {
-            return await db.SaveChangesAsync();
-        }
-
-        public void Update(Product item)
-        {
-            db.Entry(item).State = EntityState.Modified;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        Product IRepository<Product>.Get(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<List<Product>> GetProductByNameAsync(string term, int limit, int offset) =>
+            await _dbContext.Products.AsNoTracking().Where(t => EF.Functions.Like(t.Name, $"{term}%")).Skip(offset).Take(limit).ToListAsync();
     }
 }

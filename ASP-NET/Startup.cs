@@ -19,8 +19,6 @@ using Business;
 using System.Threading.Tasks;
 using ASP_NET.Controllers.AuthControllers;
 using ASP_NET.Profiles;
-using System.Reflection;
-using System.IO;
 
 namespace ASP_NET
 {
@@ -68,6 +66,7 @@ namespace ASP_NET
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
+            Services.Services.RegisterServices(services);
             services.AddTransient<SampleData>();
             services.AddHealthChecks()
                 .AddCheck(
