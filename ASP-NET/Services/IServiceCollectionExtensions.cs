@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ASP_NET.Services
 {
-    public static class Services
+    public static class IServiceCollectionExtensions
     {
         public static void RegisterServices(this IServiceCollection services)
         {

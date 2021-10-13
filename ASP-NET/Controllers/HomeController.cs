@@ -13,10 +13,5 @@ namespace ASP_NET.Controllers
             Log.Logger.Information("returning 'Hello world!' from GetInfo() method");
             return "Hello World!";
         }
-        protected IActionResult Index()
-        {
-            return Ok();
-            //return View();
-        }
     }
 }

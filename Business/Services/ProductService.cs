@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Business.DTO;
+﻿using Business.DTO;
 using Business.Interfaces;
 using DAL.Entities;
 using System.Collections.Generic;
@@ -10,12 +9,10 @@ namespace Business.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-        private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository, IMapper mapper)
+        public ProductService(IProductRepository productRepository)
         {
             _productRepository = productRepository;
-            _mapper = mapper;
         }
 
         public async Task<Product> GetProductByIdAsync(int id) => 
@@ -23,7 +20,7 @@ namespace Business.Services
             GetProductByIdAsync(id);
 
 
-        public async Task<List<TopPlatformDTO>> GetTopPlatformsAsync(int count = 3) =>
+        public async Task<List<TopPlatformDto>> GetTopPlatformsAsync(int count = 3) =>
             await _productRepository.
             GetTopPlatformsAsync(count);
 

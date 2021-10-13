@@ -57,15 +57,6 @@ namespace DAL.Repository
 
             return entitiesList;
         }
-
-        public async Task<int> CountAsync(Expression<Func<T, bool>> expression)
-        {
-            var count = expression == null
-                ? await _dbSet.CountAsync()
-                : await _dbSet.Where(expression).CountAsync();
-
-            return count;
-        }
         public async Task<T> UpdateItemAsync(T item)
         {
             try

@@ -16,12 +16,10 @@ namespace ASP_NET.Controllers.InformationControllers
     [Produces("application/json")]
     public class ProductInformationController : Controller
     {
-        private readonly IMapper _mapper;
         private readonly IProductService _productService;
 
-        public ProductInformationController(IMapper mapper, ApplicationDbContext context, IProductService productService)
+        public ProductInformationController(IProductService productService)
         {
-            _mapper = mapper;
             _productService = productService;
         }
 

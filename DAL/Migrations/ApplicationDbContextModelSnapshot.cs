@@ -24,13 +24,16 @@ namespace DAL.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
+                        .HasColumnName("ProductId")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("DateCreated")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Platform")
                         .HasColumnType("int");
@@ -40,7 +43,97 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DateCreated");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("Platform");
+
+                    b.HasIndex("TotalRating");
+
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DateCreated = "03.09.2020",
+                            Name = "Ultrakill",
+                            Platform = 0,
+                            TotalRating = 100
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DateCreated = "24.04.2015",
+                            Name = "Bloodborne",
+                            Platform = 2,
+                            TotalRating = 84
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DateCreated = "18.11.2011",
+                            Name = "Minecraft",
+                            Platform = 1,
+                            TotalRating = 95
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DateCreated = "29.11.2006",
+                            Name = "Garrys Mod",
+                            Platform = 0,
+                            TotalRating = 98
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DateCreated = "20.03.2020",
+                            Name = "Animal Crossing",
+                            Platform = 3,
+                            TotalRating = 75
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DateCreated = "19.11.1998",
+                            Name = "HalfLife",
+                            Platform = 0,
+                            TotalRating = 80
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DateCreated = "22.03.2019",
+                            Name = "Sekiro: Shadows Die Twice",
+                            Platform = 2,
+                            TotalRating = 76
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DateCreated = "25.09.2015",
+                            Name = "Until Dawn",
+                            Platform = 2,
+                            TotalRating = 75
+                        },
+                        new
+                        {
+                            Id = 9,
+                            DateCreated = "18.04.2011",
+                            Name = "Portal 2",
+                            Platform = 0,
+                            TotalRating = 99
+                        },
+                        new
+                        {
+                            Id = 10,
+                            DateCreated = "11.11.2011",
+                            Name = "Skyrim",
+                            Platform = 0,
+                            TotalRating = 90
+                        });
                 });
 
             modelBuilder.Entity("DAL.Entities.Roles.Role", b =>
@@ -70,6 +163,22 @@ namespace DAL.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "78aac644-d8c2-41c7-81cb-ff94d5ec2dd3",
+                            Name = "Admin",
+                            NormalizedName = "Administrator"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "54280541-b409-42e9-84a5-4af164baab86",
+                            Name = "User",
+                            NormalizedName = "User"
+                        });
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>
@@ -81,6 +190,9 @@ namespace DAL.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("AdressDelivery")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -125,9 +237,6 @@ namespace DAL.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("adressDelivery")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

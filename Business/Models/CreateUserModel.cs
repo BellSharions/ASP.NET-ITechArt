@@ -1,11 +1,10 @@
-﻿using DAL.Entities.Roles;
-using Swashbuckle.AspNetCore.Annotations;
+﻿using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace ASP_NET.Models
 {
     [SwaggerSchema(Required = new[] { "Description" })]
-    public class UserModel //future implementation is required
+    public class CreateUserModel
     {
         [SwaggerSchema("Specified user name")]
         public string UserName {  get; set; }

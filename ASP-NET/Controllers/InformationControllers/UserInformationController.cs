@@ -1,9 +1,11 @@
 ﻿using ASP_NET.Models;
 using AutoMapper;
+using Business.DTO;
 using Business.Interfaces;
 using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
+using DAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
@@ -21,11 +23,9 @@ namespace ASP_NET.Controllers.InformationControllers
     public class UserInformationController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IMapper _mapper;
 
-        public UserInformationController(UserManager<User> userManager, IUserService userService, RoleManager<Role> roleManager, IMapper mapper, ApplicationDbContext context)
+        public UserInformationController(IUserService userService)
         {
-            _mapper = mapper;
             _userService = userService;
         }
 
@@ -38,9 +38,9 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Information", "User" })]
         [SwaggerResponse(200, "User information was updated")]
         [SwaggerResponse(400, "User information was not updated")]
-        public async Task<IActionResult> ChangeUserInfo([FromBody, SwaggerParameter("Modified user information", Required = true)] UserModel info)
+        public async Task<IActionResult> ChangeUserInfo([FromBody, SwaggerParameter("Modified user information", Required = true)] ChangeUserInfoDto info)
         {
-            var result = await _userService.UpdateUserInfoAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value), info);
+            var result = await _userService.UpdateUserInfoAsync(int.Parse(HttpContext.User.Claims.First().Value), info);
             if(result == null)
                 return BadRequest();
             return Ok();
@@ -55,7 +55,11 @@ namespace ASP_NET.Controllers.InformationControllers
             OperationId = "GetUser",
             Tags = new[] { "Information", "User" })]
         [SwaggerResponse(200, "Returned current user", typeof(User))]
-        public async Task<IActionResult> GetUser() => Ok(await _userService.FindUserByIdAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value)));
+        public async Task<IActionResult> GetUser() 
+        { 
+            var result = await _userService.FindUserByIdAsync(int.Parse(HttpContext.User.Claims.First().Value));
+            return Ok(result);
+        }
 
         [Authorize(Roles = "User, Admin")]
         [HttpPatch("user/password")]
@@ -66,16 +70,16 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Information", "User" })]
         [SwaggerResponse(204, "User password was changed", typeof(User))]
         [SwaggerResponse(400, "Patch method was incorrect")]
-        public async Task<IActionResult> ChangeUserPassword([FromBody, SwaggerParameter("PATCH method to change password", Required = true)] JsonPatchDocument<User> patchDoc)
+        public async Task<IActionResult> ChangeUserPassword([FromBody, SwaggerParameter("PATCH method to change password", Required = true)] JsonPatchDocument<ChangePasswordUserDto> patchDoc)
         {
-            if (patchDoc == null && !ModelState.IsValid)
+            if (patchDoc == null)
                 return BadRequest(ModelState);
-            var result = await _userService.ChangePasswordAsync(int.Parse(HttpContext.User.Claims.FirstOrDefault().Value), patchDoc);
-            if (result == 400)
+            var user = new ChangePasswordUserDto();
+            patchDoc.ApplyTo(user);
+            var result = await _userService.ChangePasswordAsync(user);
+            if (result.Type == ResultType.BadRequest)
                 return BadRequest(ModelState);
-            return Created("user/password", null);
+            return Created("user/password", result.Message);
         }
-
-        protected IActionResult Index() => View();
     }
 }

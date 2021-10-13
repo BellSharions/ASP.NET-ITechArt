@@ -5,6 +5,8 @@ using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
 using Business.Interfaces;
 using DAL;
+using DAL.Entities.Models;
+using DAL.Enums;
 
 namespace ASP_NET.Controllers.AuthControllers
 {
@@ -14,11 +16,9 @@ namespace ASP_NET.Controllers.AuthControllers
     public class AuthController : Controller
     {
         IUserService _userService;
-        private readonly IMapper _mapper;
 
-        public AuthController(ApplicationDbContext context, IUserService userService, IMapper mapper)
+        public AuthController(IUserService userService)
         {
-            _mapper = mapper;
             _userService = userService;
         }
 
@@ -30,12 +30,12 @@ namespace ASP_NET.Controllers.AuthControllers
             Tags = new[] { "Authorization", "User" })]
         [SwaggerResponse(200, "User was signed in")]
         [SwaggerResponse(400, "User was not signed in due to invalid information")]
-        public async Task<IActionResult> SignIn([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
+        public async Task<IActionResult> SignIn([FromBody, SwaggerParameter("Information containing email and password", Required = true)] CreateUserModel info)
         {
             var result = await _userService.SigninAsync(info);
-            if (result == 400)
-                return BadRequest();
-            return Ok();
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
         }
 
         [HttpPost("sign-up")]
@@ -46,12 +46,12 @@ namespace ASP_NET.Controllers.AuthControllers
             Tags = new[] { "Authorization", "User" })]
         [SwaggerResponse(201, "User was created")]
         [SwaggerResponse(400, "User was not created due to invalid information")]
-        public async Task<IActionResult> SignUp([FromBody, SwaggerParameter("Information containing email and password", Required = true)] UserModel info)
+        public async Task<IActionResult> SignUp([FromBody, SwaggerParameter("Information containing email and password", Required = true)] CreateUserModel info)
         {
             var result = await _userService.RegisterAsync(info);
-            if(result == 200)
+            if(result.Type == ResultType.Success)
             return Created("api/auth/sign-up", null);
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
         [HttpGet("email-confirmation")]

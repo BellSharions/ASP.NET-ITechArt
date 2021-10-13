@@ -1,21 +1,18 @@
 ﻿using ASP_NET.Models;
+using Business.DTO;
 using DAL.Entities;
-using Microsoft.AspNetCore.JsonPatch;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using DAL.Entities.Models;
 using System.Threading.Tasks;
 
 namespace Business.Interfaces
 {
     public interface IUserService 
     {
-        Task<int> RegisterAsync(UserModel info);
-        Task<int> ConfirmEmailAsync(int id, string token);
-        Task<int> SigninAsync(UserModel info);
-        Task<int> ChangePasswordAsync(int id, JsonPatchDocument<User> patchDoc);
+        Task<ServiceResult> RegisterAsync(CreateUserModel info);
+        Task<ServiceResult> ConfirmEmailAsync(int id, string token);
+        Task<ServiceResult> SigninAsync(CreateUserModel info);
+        Task<ServiceResult> ChangePasswordAsync(ChangePasswordUserDto user);
         Task<User> FindUserByIdAsync(int id);
-        Task<User> UpdateUserInfoAsync(int id, UserModel user);
+        Task<User> UpdateUserInfoAsync(int id, ChangeUserInfoDto user);
     }
 }

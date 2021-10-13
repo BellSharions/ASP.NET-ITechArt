@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Business.Enums
 {
     public enum AvailablePlatforms
     {
-        PC, XBOX, PlayStation, Switch
+        PC = 0, XBOX = 1, PlayStation = 2, Switch = 3
     }
 }
