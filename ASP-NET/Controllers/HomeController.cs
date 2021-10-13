@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace ASP_NET.Controllers
 {
@@ -7,6 +7,7 @@ namespace ASP_NET.Controllers
     {
         public string GetInfo()
         {
+            Log.Logger.Information("returning 'Hello world!' from GetInfo() method");
             return "Hello World!";
         }
         public IActionResult Index()
