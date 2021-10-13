@@ -50,7 +50,7 @@ namespace ASP_NET.Controllers.AuthControllers
         {
             var result = await _userService.RegisterAsync(info);
             if(result.Type == ResultType.Success)
-            return Created("api/auth/sign-up", null);
+                return Created("api/auth/sign-up", null);
             return BadRequest(result.Message);
         }
 
@@ -65,7 +65,9 @@ namespace ASP_NET.Controllers.AuthControllers
         public async Task<IActionResult> EmailConfirm([SwaggerParameter("User ID", Required = true)]int id, [SwaggerParameter("Email confirmation token", Required = true)] string token)
         {
             var isConfirmed = await _userService.ConfirmEmailAsync(id, token);
-            return NoContent();
+            if(isConfirmed.Type == ResultType.NoContent)
+                return NoContent();
+            return BadRequest(isConfirmed.Message);
         }
     }
 }
