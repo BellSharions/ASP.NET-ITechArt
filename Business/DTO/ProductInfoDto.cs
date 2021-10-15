@@ -1,12 +1,11 @@
 ﻿using Business.Enums;
 using DAL.Enums;
 
-namespace DAL.Entities
+namespace Business.DTO
 {
-    public class Product
+    public class ProductInfoDto
     {
-        public int Id {  get; set; }
-        public string Name {  get; set; }
+        public string Name { get; set; }
         public AvailablePlatforms Platform { get; set; }
         public AvailableGenres Genre { get; set; }
         public AgeRating Rating { get; set; }
@@ -14,8 +13,7 @@ namespace DAL.Entities
         public string Background { get; set; }
         public string Price { get; set; }
         public string Count { get; set; }
-        public string DateCreated {  get; set; }
-        public int TotalRating {  get; set; }
+        public string DateCreated { get; set; }
+        public int TotalRating { get; set; }
     }
-    
 }
