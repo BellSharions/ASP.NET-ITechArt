@@ -1,4 +1,5 @@
-﻿using Business.DTO;
+﻿using AutoMapper;
+using Business.DTO;
 using Business.Interfaces;
 using DAL.Entities;
 using DAL.Entities.Models;
@@ -14,11 +15,13 @@ namespace Business.Services
         private readonly IProductRepository _productRepository;
 
         private readonly CloudinaryOptions _options;
+        private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository, IOptions<CloudinaryOptions> SmtpOptionsAccessor)
+        public ProductService(IProductRepository productRepository, IOptions<CloudinaryOptions> SmtpOptionsAccessor, IMapper mapper)
         {
             _productRepository = productRepository;
             _options = SmtpOptionsAccessor.Value;
+            _mapper = mapper;
         }
 
         public async Task<Product> GetProductByIdAsync(int id) => 
@@ -74,16 +77,9 @@ namespace Business.Services
             var foundProduct = await _productRepository.GetProductByIdAsync(info.Id);
             var logoResult = await new CloudinaryService(_options).UploadImage(info.Logo);
             var bgResult = await new CloudinaryService(_options).UploadImage(info.Background);
-            foundProduct.Name = info.Name ?? foundProduct.Name;
-            foundProduct.Platform = info.Platform ?? foundProduct.Platform;
-            foundProduct.Genre = info.Genre ?? foundProduct.Genre;
-            foundProduct.Rating = info.Rating ?? foundProduct.Rating;
-            foundProduct.Logo = logoResult ?? foundProduct.Logo;
-            foundProduct.Background = bgResult ?? foundProduct.Background;
-            foundProduct.Price = info.Price ?? foundProduct.Price;
-            foundProduct.Count = info.Count ?? foundProduct.Count;
-            foundProduct.DateCreated = info.DateCreated ?? foundProduct.DateCreated;
-            foundProduct.TotalRating = info.TotalRating ?? foundProduct.TotalRating;
+            _mapper.Map(info, foundProduct);
+            foundProduct.Logo = logoResult;
+            foundProduct.Background = bgResult;
             await _productRepository.UpdateItemAsync(foundProduct);
             return new ServiceResult(ResultType.Success, "Success");
         }

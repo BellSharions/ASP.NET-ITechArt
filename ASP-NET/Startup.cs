@@ -30,6 +30,7 @@ namespace ASP_NET
             Configuration.GetSection(nameof(SmtpOptions)));
             services.Configure<CloudinaryOptions>(
             Configuration.GetSection(nameof(CloudinaryOptions)));
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();

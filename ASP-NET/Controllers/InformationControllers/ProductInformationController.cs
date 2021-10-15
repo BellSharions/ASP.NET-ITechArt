@@ -91,7 +91,6 @@ namespace ASP_NET.Controllers.InformationControllers
 
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("")]
         [SwaggerOperation(
             Summary = "Change product information",
