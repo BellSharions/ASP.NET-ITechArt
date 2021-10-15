@@ -9,5 +9,6 @@ namespace DAL.Entities
 {
     public class User : IdentityUser<int>
     {
+        public string adressDelivery {  get; set; }
     }
 }
