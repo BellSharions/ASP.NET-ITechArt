@@ -1,4 +1,5 @@
-﻿namespace ASP_NET.Services
+﻿
+namespace Business
 {
     public class CloudinaryOptions
     {

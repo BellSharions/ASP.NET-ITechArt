@@ -12,6 +12,8 @@ namespace Business.Interfaces
         Task<List<Product>> SearchProductByNameAsync(string term, int limit, int offset);
         Task<Product> GetProductByIdAsync(int id);
         Task<ProductInfoDto> GetProductInfoByIdAsync(int id);
-        Task<ServiceResult> CreateProductAsync(ProductInfoDto info);
+        Task<ServiceResult> CreateProductAsync(ProductCreationDto info);
+        Task<ServiceResult> DeleteProduct(int id);
+        Task<ServiceResult> ChangeProductInfoAsync(ProductChangeDto info);
     }
 }

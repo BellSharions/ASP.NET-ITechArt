@@ -28,8 +28,8 @@ namespace ASP_NET
         {
             services.Configure<SmtpOptions>(
             Configuration.GetSection(nameof(SmtpOptions)));
-            services.Configure<CloudinarySettings>(
-            Configuration.GetSection(nameof(CloudinarySettings)));
+            services.Configure<CloudinaryOptions>(
+            Configuration.GetSection(nameof(CloudinaryOptions)));
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();

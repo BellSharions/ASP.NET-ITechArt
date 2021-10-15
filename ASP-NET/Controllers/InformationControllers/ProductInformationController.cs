@@ -73,7 +73,7 @@ namespace ASP_NET.Controllers.InformationControllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "User, Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("")]
         [SwaggerOperation(
             Summary = "Create product",
@@ -82,7 +82,7 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Product", "Information" })]
         [SwaggerResponse(200, "Product was created")]
         [SwaggerResponse(400, "Product was not created")]
-        public async Task<IActionResult> CreateProduct([FromBody, SwaggerParameter("Information to create product", Required = true)] ProductInfoDto info)
+        public async Task<IActionResult> CreateProduct([FromForm, SwaggerParameter("Information to create product", Required = true)] ProductCreationDto info)
         {
             var result = await _productService.CreateProductAsync(info);
             if (result.Type == ResultType.BadRequest)
@@ -91,7 +91,7 @@ namespace ASP_NET.Controllers.InformationControllers
 
         }
 
-        [Authorize(Roles = "User, Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("")]
         [SwaggerOperation(
             Summary = "Change product information",
@@ -100,9 +100,27 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Information", "Product" })]
         [SwaggerResponse(200, "Product information was updated")]
         [SwaggerResponse(400, "Product information was not updated")]
-        public async Task<IActionResult> ChangeProductInfo([FromBody, SwaggerParameter("Modified user information", Required = true)] ProductInfoDto info)
+        public async Task<IActionResult> ChangeProductInfo([FromForm, SwaggerParameter("Modified user information", Required = true)] ProductChangeDto info)
         {
-            var result = await _productService.CreateProductAsync(info);
+            var result = await _productService.ChangeProductInfoAsync(info);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("id/{id}")]
+        [SwaggerOperation(
+            Summary = "Delete product",
+            Description = "Searches specified product by id and deletes it",
+            OperationId = "DeleteProduct",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "Product was deleted")]
+        [SwaggerResponse(400, "Product was not deleted")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var result = await _productService.DeleteProduct(id);
             if (result.Type == ResultType.BadRequest)
                 return BadRequest(result.Message);
             return Ok(result.Message);

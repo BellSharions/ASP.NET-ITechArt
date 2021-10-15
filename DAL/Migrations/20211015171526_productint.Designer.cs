@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211015171526_productint")]
+    partial class productint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +41,6 @@ namespace DAL.Migrations
 
                     b.Property<int>("Genre")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
@@ -81,7 +80,6 @@ namespace DAL.Migrations
                             Count = "10",
                             DateCreated = "03.09.2020",
                             Genre = 2,
-                            IsDeleted = false,
                             Name = "Ultrakill",
                             Platform = 0,
                             Price = "1000",
@@ -94,7 +92,6 @@ namespace DAL.Migrations
                             Count = "15",
                             DateCreated = "24.04.2015",
                             Genre = 4,
-                            IsDeleted = false,
                             Name = "Bloodborne",
                             Platform = 2,
                             Price = "1250",
@@ -107,7 +104,6 @@ namespace DAL.Migrations
                             Count = "14",
                             DateCreated = "18.11.2011",
                             Genre = 0,
-                            IsDeleted = false,
                             Name = "Minecraft",
                             Platform = 1,
                             Price = "1520",
@@ -120,7 +116,6 @@ namespace DAL.Migrations
                             Count = "17",
                             DateCreated = "29.11.2006",
                             Genre = 0,
-                            IsDeleted = false,
                             Name = "Garrys Mod",
                             Platform = 0,
                             Price = "1430",
@@ -133,7 +128,6 @@ namespace DAL.Migrations
                             Count = "25",
                             DateCreated = "20.03.2020",
                             Genre = 2,
-                            IsDeleted = false,
                             Name = "Animal Crossing",
                             Platform = 3,
                             Price = "1654",
@@ -146,7 +140,6 @@ namespace DAL.Migrations
                             Count = "43",
                             DateCreated = "19.11.1998",
                             Genre = 2,
-                            IsDeleted = false,
                             Name = "HalfLife",
                             Platform = 0,
                             Price = "1352",
@@ -159,7 +152,6 @@ namespace DAL.Migrations
                             Count = "65",
                             DateCreated = "22.03.2019",
                             Genre = 4,
-                            IsDeleted = false,
                             Name = "Sekiro: Shadows Die Twice",
                             Platform = 2,
                             Price = "1532",
@@ -172,7 +164,6 @@ namespace DAL.Migrations
                             Count = "15",
                             DateCreated = "25.09.2015",
                             Genre = 8,
-                            IsDeleted = false,
                             Name = "Until Dawn",
                             Platform = 2,
                             Price = "1627",
@@ -185,7 +176,6 @@ namespace DAL.Migrations
                             Count = "43",
                             DateCreated = "18.04.2011",
                             Genre = 4,
-                            IsDeleted = false,
                             Name = "Portal 2",
                             Platform = 0,
                             Price = "1243",
@@ -198,7 +188,6 @@ namespace DAL.Migrations
                             Count = "26",
                             DateCreated = "11.11.2011",
                             Genre = 4,
-                            IsDeleted = false,
                             Name = "Skyrim",
                             Platform = 0,
                             Price = "1234",
@@ -239,14 +228,14 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "495c803e-fb62-43b0-b4ce-3460a7605c74",
+                            ConcurrencyStamp = "4a215a47-4a18-495d-b244-622f235d2838",
                             Name = "Admin",
                             NormalizedName = "Administrator"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "571b419b-f46f-4430-8981-309869c111f3",
+                            ConcurrencyStamp = "c2288649-c123-4014-b310-d08b53c5a235",
                             Name = "User",
                             NormalizedName = "User"
                         });

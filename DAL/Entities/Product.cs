@@ -16,6 +16,7 @@ namespace DAL.Entities
         public string Count { get; set; }
         public string DateCreated {  get; set; }
         public int TotalRating {  get; set; }
+        public bool IsDeleted {  get; set; }
     }
     
 }
