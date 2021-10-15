@@ -13,6 +13,11 @@ using Serilog;
 using Serilog.AspNetCore;
 using System;
 using DAL;
+using DAL.Entities;
+using DAL.Entities.Roles;
+using Business;
+using System.Threading.Tasks;
+using ASP_NET.Controllers.AuthControllers;
 
 namespace ASP_NET
 {
@@ -28,7 +33,8 @@ namespace ASP_NET
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.Configure<SmtpOptions>(
+            Configuration.GetSection(nameof(SmtpOptions)));
             //services.AddAutoMapper();
             services.AddSwaggerGen(c =>
             {
@@ -50,8 +56,13 @@ namespace ASP_NET
                     Configuration.GetConnectionString("DefaultConnection"),
                     x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<User>/*<User>*/(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()//IdentityUser<Guid>
+                .AddRoleManager<RoleManager>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            });
             services.AddHealthChecks()
                 .AddCheck(
                     "OrderingDB-check",
@@ -62,7 +73,7 @@ namespace ASP_NET
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -85,9 +96,10 @@ namespace ASP_NET
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            
             app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
@@ -95,8 +107,9 @@ namespace ASP_NET
                 endpoints.MapHealthChecks("/hc");
                 endpoints.MapControllerRoute(
                         name: "default",
-                        pattern: "{controller=Home}/{action=GetInfo}");
+                        pattern: "{controller=Home}/{action=Index}");
             });
         }
+
     }
 }

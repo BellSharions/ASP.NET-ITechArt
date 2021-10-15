@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 namespace ASP_NET.Controllers
 {
     public class HomeController : Controller
     {
+        [Authorize(Roles = "Admin")]
         public string GetInfo()
         {
             Log.Logger.Information("returning 'Hello world!' from GetInfo() method");
@@ -12,7 +15,8 @@ namespace ASP_NET.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            return Ok();
+            //return View();
         }
     }
 }
