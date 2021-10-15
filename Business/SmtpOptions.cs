@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration;
-
+﻿
 namespace Business
 {
     public class SmtpOptions
@@ -8,6 +7,6 @@ namespace Business
         public int Port {  get; set; }
         public string Username {  get; set; }
         public string Password {  get; set; }
-
+        public string Domain { get; set; }
     }
 }

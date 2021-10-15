@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,15 +7,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.AspNetCore;
 using System;
 using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
 using Business;
-using System.Threading.Tasks;
-using ASP_NET.Controllers.AuthControllers;
-using ASP_NET.Profiles;
 
 namespace ASP_NET
 {
@@ -30,15 +23,13 @@ namespace ASP_NET
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SmtpOptions>(
             Configuration.GetSection(nameof(SmtpOptions)));
-            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
@@ -51,20 +42,21 @@ namespace ASP_NET
                         Url = new Uri("https://github.com/BellSharions"),
                     }
                 });
+                
             });
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
-                    x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
+                    x => x.MigrationsAssembly("DAL")));
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<User>/*<User>*/(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()//IdentityUser<Guid>
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()
                 .AddRoleManager<RoleManager>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.ConfigureApplicationCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
-            services.AddTransient<SampleData>();
+            Services.IServiceCollectionExtensions.RegisterServices(services);
             services.AddHealthChecks()
                 .AddCheck(
                     "OrderingDB-check",
@@ -74,8 +66,7 @@ namespace ASP_NET
             services.AddRazorPages().AddNewtonsoftJson();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, SampleData seeder, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -87,13 +78,9 @@ namespace ASP_NET
                app.UseExceptionHandler("/Error");
                app.UseHsts();
             }
-            seeder.SeedRoles();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET API");
-            });
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

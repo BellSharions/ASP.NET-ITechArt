@@ -8,15 +8,10 @@ namespace ASP_NET.Controllers
     public class HomeController : Controller
     {
         [Authorize(Roles = "Admin")]
-        public string GetInfo()
+        protected string GetInfo()
         {
             Log.Logger.Information("returning 'Hello world!' from GetInfo() method");
             return "Hello World!";
-        }
-        public IActionResult Index()
-        {
-            return Ok();
-            //return View();
         }
     }
 }

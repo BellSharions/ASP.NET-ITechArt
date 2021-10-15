@@ -26,7 +26,7 @@ namespace ASP_NET
                 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().
                     WriteTo.Map(
                     evt => evt.Level,
-                    (level, wt) => wt.File("../Logs/" + level + $"-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.log", outputTemplate: outputTemplate)).
+                    (level, wt) => wt.File($"../Logs/{level}-{DateTime.Now.Date.ToShortDateString().Replace("/", "-")}.log", outputTemplate: outputTemplate)).
                     CreateLogger();
                 var host = CreateHostBuilder(args).Build();
 
