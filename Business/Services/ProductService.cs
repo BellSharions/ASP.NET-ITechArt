@@ -51,8 +51,9 @@ namespace Business.Services
         {
             if (info == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var logoResult = await new CloudinaryService(_options).UploadImage(info.Logo);
-            var bgResult = await new CloudinaryService(_options).UploadImage(info.Background);
+            var upload = new CloudinaryService(_options);
+            var logoResult = await upload.UploadImage(info.Logo);
+            var bgResult = await upload.UploadImage(info.Background);
             Product product = new Product()
             {
                 Name = info.Name,
@@ -75,8 +76,9 @@ namespace Business.Services
             if (info == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             var foundProduct = await _productRepository.GetProductByIdAsync(info.Id);
-            var logoResult = await new CloudinaryService(_options).UploadImage(info.Logo);
-            var bgResult = await new CloudinaryService(_options).UploadImage(info.Background);
+            var upload = new CloudinaryService(_options);
+            var logoResult = await upload.UploadImage(info.Logo);
+            var bgResult = await upload.UploadImage(info.Background);
             _mapper.Map(info, foundProduct);
             foundProduct.Logo = logoResult;
             foundProduct.Background = bgResult;
