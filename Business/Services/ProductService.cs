@@ -13,13 +13,14 @@ namespace Business.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-
+        private readonly IRatingRepository _ratingRepository;
         private readonly CloudinaryOptions _options;
         private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository, IOptions<CloudinaryOptions> SmtpOptionsAccessor, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IRatingRepository ratingRepository, IOptions<CloudinaryOptions> SmtpOptionsAccessor, IMapper mapper)
         {
             _productRepository = productRepository;
+            _ratingRepository = ratingRepository;
             _options = SmtpOptionsAccessor.Value;
             _mapper = mapper;
         }
@@ -98,5 +99,42 @@ namespace Business.Services
         public async Task<List<Product>> SearchProductByNameAsync(string term, int limit, int offset) => 
             await _productRepository.
             GetProductByNameAsync(term, limit, offset);
+
+        public async Task<ServiceResult> AddRatingAsync(int userId, RatingCreationDto info)
+        {
+            var rating = new ProductRating()
+            {
+                UserId = userId,
+                ProductId = info.ProductId,
+                Rating = info.Rating
+            };
+            var result = await _ratingRepository.CreateAsync(rating);
+            if (result == null)
+                return new ServiceResult(ResultType.BadRequest, "Invalid information");
+            //add total rating recalculation
+            return new ServiceResult(ResultType.Success, "Success");
+        }
+
+        public async Task<ServiceResult> DeleteRatingAsync(int userId, int productId)
+        {
+            var result = await _ratingRepository.DeleteAsync(u => u.UserId == userId && u.ProductId == productId);
+            if (result == null)
+                return new ServiceResult(ResultType.BadRequest, "Invalid information");
+            //add total rating recalculation
+            return new ServiceResult(ResultType.Success, "Success");
+        }
+
+        public async Task<ProductPageDto> ListProductAsync(ListProductPageDto info)
+        {
+            var list = await _productRepository.ListProductPageAsync(info);
+            var result = new ProductPageDto
+            {
+                Data = list,
+                PageNumber = info.PageNumber,
+                PageSize = info.PageSize,
+                ProductAmount = list.Count
+            };
+            return result;
+        }
     }
 }

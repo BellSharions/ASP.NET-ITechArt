@@ -13,6 +13,7 @@ namespace Business.Interfaces
         Task<List<TopPlatformDto>> GetTopPlatformsAsync(int count);
         Task<Product> GetProductByIdAsync(int id);
         Task<ServiceResult> DeleteProductAsync(int id);
+        Task<List<Product>> ListProductPageAsync(ListProductPageDto info);
 
     }
 }

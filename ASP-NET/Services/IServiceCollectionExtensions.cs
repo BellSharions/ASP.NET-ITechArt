@@ -13,7 +13,7 @@ namespace ASP_NET.Services
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IProductRepository, ProductRepository>();
-            //services.AddTransient<ICloudinaryService, CloudinaryService>();
+            services.AddTransient<IRatingRepository, RatingRepository>();
         }
     }
 }

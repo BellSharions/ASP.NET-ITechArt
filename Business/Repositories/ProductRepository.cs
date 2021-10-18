@@ -1,5 +1,6 @@
 ﻿using Business.DTO;
 using Business.Interfaces;
+using Business.Services;
 using DAL;
 using DAL.Entities;
 using DAL.Entities.Models;
@@ -45,11 +46,23 @@ namespace Business.Repositories
         public async Task<ServiceResult> DeleteProductAsync(int id)
         {
             var result = await _dbContext.Products.FirstOrDefaultAsync(t => t.Id == id);
-            if(result == null)
+            if (result == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid id");
             result.IsDeleted = true;
             _dbContext.SaveChanges();
             return new ServiceResult(ResultType.Success, "Success");
+        }
+
+        public async Task<List<Product>> ListProductPageAsync(ListProductPageDto info)
+        {
+            var query = _dbContext.Products.Where(u => u.Genre == info.Genre && u.Rating == info.AgeRating);
+            QueryListHelper.QueryListAsync(info, ref query);
+            var result = await query
+                    .Skip(info.PageNumber * info.PageSize)
+                    .Take(info.PageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
+            return result;
         }
     }
 }

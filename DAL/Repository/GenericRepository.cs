@@ -1,4 +1,6 @@
-﻿using DAL.Interfaces;
+﻿using DAL.Entities.Models;
+using DAL.Enums;
+using DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -76,13 +78,15 @@ namespace DAL.Repository
             return item;
         }
 
-        public async Task DeleteAsync(Expression<Func<T, bool>> expression)
+        public async Task<ServiceResult> DeleteAsync(Expression<Func<T, bool>> expression)
         {
             try
             {
                 _dbSet.RemoveRange(_dbSet.Where(expression));
 
-                await _dbContext.SaveChangesAsync();
+                if (await _dbContext.SaveChangesAsync() == 0)
+                    return new ServiceResult(ResultType.BadRequest, "Invalid information");
+                return new ServiceResult(ResultType.Success, "Success");
             }
             catch (Exception e)
             {

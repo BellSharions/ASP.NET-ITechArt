@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ASP_NET.Controllers.InformationControllers
@@ -123,6 +124,59 @@ namespace ASP_NET.Controllers.InformationControllers
             if (result.Type == ResultType.BadRequest)
                 return BadRequest(result.Message);
             return Ok(result.Message);
+
+        }
+
+        [Authorize(Roles = "Admin, User")]
+        [HttpPost("rating")]
+        [SwaggerOperation(
+            Summary = "Adds user rating",
+            Description = "Adds specified rating of authorized user",
+            OperationId = "AddUserRating",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "Rating was added")]
+        [SwaggerResponse(400, "Invalid information")]
+        public async Task<IActionResult> AddUserRating([FromBody]RatingCreationDto info)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.First().Value);
+            var result = await _productService.AddRatingAsync(userId, info);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
+        }
+
+        [Authorize(Roles = "Admin, User")]
+        [HttpDelete("rating")]
+        [SwaggerOperation(
+            Summary = "Delete user rating",
+            Description = "Deletes specified rating of authorized user",
+            OperationId = "DeleteUserRating",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "Product rating was deleted")]
+        [SwaggerResponse(400, "Invalid information")]
+        public async Task<IActionResult> DeleteUserRating(int productId)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.First().Value);
+            var result = await _productService.DeleteRatingAsync(userId, productId);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
+        }
+
+        [HttpGet("list")]
+        [SwaggerOperation(
+            Summary = "List filtered products",
+            Description = "Gives a list of filtered and sorted products",
+            OperationId = "ListProductPage",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "List was retrieved")]
+        [SwaggerResponse(400, "Invalid information")]
+        public async Task<IActionResult> ListProductPage([FromQuery]ListProductPageDto info)
+        {
+            var result = await _productService.ListProductAsync(info);
+            return Ok(result);
 
         }
 
