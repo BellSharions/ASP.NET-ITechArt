@@ -111,7 +111,7 @@ namespace Business.Services
             var result = await _ratingRepository.CreateAsync(rating);
             if (result == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            //add total rating recalculation
+            await _ratingRepository.RecalculateRating(info.ProductId);
             return new ServiceResult(ResultType.Success, "Success");
         }
 
@@ -120,7 +120,7 @@ namespace Business.Services
             var result = await _ratingRepository.DeleteAsync(u => u.UserId == userId && u.ProductId == productId);
             if (result == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            //add total rating recalculation
+            await _ratingRepository.RecalculateRating(productId);
             return new ServiceResult(ResultType.Success, "Success");
         }
 

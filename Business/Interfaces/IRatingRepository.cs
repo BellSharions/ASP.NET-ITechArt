@@ -10,5 +10,6 @@ namespace Business.Interfaces
 {
     public interface IRatingRepository : IRepository<ProductRating>
     {
+        Task RecalculateRating(int id);
     }
 }

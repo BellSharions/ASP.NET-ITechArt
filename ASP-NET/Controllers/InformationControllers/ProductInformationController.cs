@@ -1,4 +1,5 @@
 ﻿using Business.DTO;
+using Business.Filters;
 using Business.Interfaces;
 using DAL.Entities;
 using DAL.Entities.Models;
@@ -165,6 +166,7 @@ namespace ASP_NET.Controllers.InformationControllers
 
         }
 
+        [ServiceFilter(typeof(ActionFilters))]
         [HttpGet("list")]
         [SwaggerOperation(
             Summary = "List filtered products",
