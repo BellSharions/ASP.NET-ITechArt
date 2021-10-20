@@ -26,24 +26,14 @@ namespace Business.Filters
 
             var product = (ListProductPageDto)dtoParams;
 
-            if (!Enum.IsDefined(typeof(Sorting), product.PriceSort))
+            if (product.PageSize <= 0)
             {
-                FilterHelper.BadRequestValue(context, product.PriceSort.ToString());
+                FilterHelper.BadRequestValue(context, product.PageSize.ToString());
                 return;
             }
-            if (!Enum.IsDefined(typeof(Sorting), product.RatingSort))
+            if (product.PageNumber <= 0)
             {
-                FilterHelper.BadRequestValue(context, product.RatingSort.ToString());
-                return;
-            }
-            if (!Enum.IsDefined(typeof(AgeRating), product.AgeRating))
-            {
-                FilterHelper.BadRequestValue(context, product.AgeRating.ToString());
-                return;
-            }
-            if (!Enum.IsDefined(typeof(AvailableGenres), product.Genre))
-            {
-                FilterHelper.BadRequestValue(context, product.Genre.ToString());
+                FilterHelper.BadRequestValue(context, product.PageNumber.ToString());
                 return;
             }
         }

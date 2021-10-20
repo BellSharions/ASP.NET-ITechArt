@@ -1,6 +1,7 @@
 ﻿using DAL.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,5 +16,6 @@ namespace Business.DTO
         public AgeRating AgeRating {  get; set; }
         public Sorting PriceSort {  get; set; }
         public Sorting RatingSort {  get; set; }
+
     }
 }
