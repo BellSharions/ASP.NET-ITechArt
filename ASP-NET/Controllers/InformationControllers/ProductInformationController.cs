@@ -73,6 +73,7 @@ namespace ASP_NET.Controllers.InformationControllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("")]
         [SwaggerOperation(
             Summary = "Create product",
@@ -90,6 +91,7 @@ namespace ASP_NET.Controllers.InformationControllers
 
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         [SwaggerOperation(
             Summary = "Change product information",
