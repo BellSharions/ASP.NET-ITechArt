@@ -2,8 +2,6 @@
 using Business.Filters;
 using Business.Interfaces;
 using DAL.Entities;
-using DAL.Entities.Models;
-using DAL.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -75,7 +73,6 @@ namespace ASP_NET.Controllers.InformationControllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost("")]
         [SwaggerOperation(
             Summary = "Create product",
@@ -87,13 +84,13 @@ namespace ASP_NET.Controllers.InformationControllers
         public async Task<IActionResult> CreateProduct([FromForm, SwaggerParameter("Information to create product", Required = true)] ProductCreationDto info)
         {
             var result = await _productService.CreateProductAsync(info);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
 
         }
 
-        [HttpPut("")]
+        [HttpPut("{id}")]
         [SwaggerOperation(
             Summary = "Change product information",
             Description = "Searches specified product and changes information taken from body",
@@ -101,10 +98,10 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Information", "Product" })]
         [SwaggerResponse(200, "Product information was updated")]
         [SwaggerResponse(400, "Product information was not updated")]
-        public async Task<IActionResult> ChangeProductInfo([FromForm, SwaggerParameter("Modified user information", Required = true)] ProductChangeDto info)
+        public async Task<IActionResult> ChangeProductInfo([FromForm, SwaggerParameter("Modified user information", Required = true)] ProductChangeDto info, int id)
         {
-            var result = await _productService.ChangeProductInfoAsync(info);
-            if (result.Type == ResultType.BadRequest)
+            var result = await _productService.ChangeProductInfoAsync(id, info);
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
 
@@ -122,7 +119,7 @@ namespace ASP_NET.Controllers.InformationControllers
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var result = await _productService.DeleteProduct(id);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
 
@@ -141,7 +138,7 @@ namespace ASP_NET.Controllers.InformationControllers
         {
             var userId = int.Parse(HttpContext.User.Claims.First().Value);
             var result = await _productService.AddRatingAsync(userId, info);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
 
@@ -160,7 +157,7 @@ namespace ASP_NET.Controllers.InformationControllers
         {
             var userId = int.Parse(HttpContext.User.Claims.First().Value);
             var result = await _productService.DeleteRatingAsync(userId, productId);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
 

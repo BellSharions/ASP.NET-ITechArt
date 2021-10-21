@@ -11,7 +11,6 @@ namespace Business.DTO
 {
     public class ProductChangeDto
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public AvailablePlatforms Platform { get; set; }
         public AvailableGenres Genre { get; set; }

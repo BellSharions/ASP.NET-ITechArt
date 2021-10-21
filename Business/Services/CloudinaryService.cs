@@ -28,24 +28,30 @@ namespace Business.Services
             _cloudinary.Api.Secure = true;
         }
 
-        public async Task<string> UploadImage(IFormFile file)
+        public async Task<string> UploadImage(string fileName, Stream stream)
         {
-            var uploadResult = new ImageUploadResult();
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(fileName, stream),
+                Folder = ""
+            };
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            await stream.DisposeAsync();
+            return uploadResult.SecureUrl.AbsoluteUri.ToString();
+        }
+
+        public async Task<string> DeleteImage(string publicId)
+        {
+            var uploadResult = new DeletionResult();
             using (var stream = new MemoryStream())
             {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
 
-                var uploadParams = new ImageUploadParams()
-                {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = ""
-                };
+                var uploadParams = new DeletionParams(publicId);
 
-                uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                uploadResult = await _cloudinary.DestroyAsync(uploadParams);
             }
 
-            return uploadResult.SecureUrl.AbsoluteUri.ToString();
+            return uploadResult.StatusCode.ToString();
         }
     }
 }
