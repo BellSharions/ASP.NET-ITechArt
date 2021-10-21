@@ -6,6 +6,7 @@ using DAL.Entities.Models;
 using DAL.Enums;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -108,9 +109,13 @@ namespace Business.Services
             GetTopPlatformsAsync(count);
 
 
-        public async Task<List<Product>> SearchProductByNameAsync(string term, int limit, int offset) => 
-            await _productRepository.
-            GetProductByNameAsync(term, limit, offset);
+        public async Task<List<ProductInfoDto>> SearchProductByNameAsync(string term, int limit, int offset)
+        {
+            var queryResult = await _productRepository.GetProductByNameAsync(term, limit, offset);
+            var result = new List<ProductInfoDto>();
+            _mapper.Map(queryResult, result);
+            return result;
+        }
 
         public async Task<ServiceResult> AddRatingAsync(int userId, RatingCreationDto info)
         {

@@ -1,7 +1,6 @@
 ﻿using Business.DTO;
 using Business.Filters;
 using Business.Interfaces;
-using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -29,7 +28,7 @@ namespace ASP_NET.Controllers.InformationControllers
             Description = "Groups all products by platform and takes top 3",
             OperationId = "FindTopPlatforms",
             Tags = new[] { "Search", "Product" })]
-        [SwaggerResponse(200, "Returned top 3 platforms", typeof(IList<Product>))]
+        [SwaggerResponse(200, "Returned top 3 platforms", typeof(IList<TopPlatformDto>))]
         [SwaggerResponse(400, "No products were found")]
         public async Task<IActionResult> FindTopPlatforms()
         {
@@ -61,7 +60,7 @@ namespace ASP_NET.Controllers.InformationControllers
             Description = "Searches and offsets limited amount of products specified by term from all products",
             OperationId = "SearchProduct",
             Tags = new[] { "Search", "Product" })]
-        [SwaggerResponse(200, "Returned a list of products by specified term", typeof(IList<Product>))]
+        [SwaggerResponse(200, "Returned a list of products by specified term", typeof(IList<ProductInfoDto>))]
         [SwaggerResponse(400, "No products were found")]
         public async Task<IActionResult> SearchProduct([SwaggerParameter("Term used to search through Product table", Required = true)] string term, 
                                                        [SwaggerParameter("Amount of items to return", Required = true)] int limit,

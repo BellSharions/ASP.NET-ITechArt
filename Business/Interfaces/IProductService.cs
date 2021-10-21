@@ -9,7 +9,7 @@ namespace Business.Interfaces
     public interface IProductService
     {
         Task<List<TopPlatformDto>> GetTopPlatformsAsync(int count);
-        Task<List<Product>> SearchProductByNameAsync(string term, int limit, int offset);
+        Task<List<ProductInfoDto>> SearchProductByNameAsync(string term, int limit, int offset);
         Task<Product> GetProductByIdAsync(int id);
         Task<ProductInfoDto> GetProductInfoByIdAsync(int id);
         Task<ServiceResult> CreateProductAsync(ProductCreationDto info);

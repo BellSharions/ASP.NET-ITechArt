@@ -14,6 +14,7 @@ namespace Business
         public AutoMapperProfile()
         {
             CreateMap<ProductChangeDto, Product>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Product, ProductInfoDto>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }
