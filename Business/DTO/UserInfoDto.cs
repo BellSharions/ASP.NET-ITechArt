@@ -1,7 +1,7 @@
 ﻿
 namespace Business.DTO
 {
-    public class ChangeUserInfoDto
+    public class UserInfoDto
     {
         public string UserName { get; set; }
         public string PhoneNumber { get; set; }

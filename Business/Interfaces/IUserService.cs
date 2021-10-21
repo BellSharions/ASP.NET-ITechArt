@@ -1,5 +1,5 @@
-﻿using ASP_NET.Models;
-using Business.DTO;
+﻿using Business.DTO;
+using Business.Models;
 using DAL.Entities;
 using DAL.Entities.Models;
 using System.Threading.Tasks;
@@ -13,6 +13,7 @@ namespace Business.Interfaces
         Task<ServiceResult> SigninAsync(CreateUserModel info);
         Task<ServiceResult> ChangePasswordAsync(ChangePasswordUserDto user);
         Task<User> FindUserByIdAsync(int id);
+        Task<UserInfoDto> FindUserInfoByIdAsync(int id);
         Task<User> UpdateUserInfoAsync(int id, ChangeUserInfoDto user);
     }
 }

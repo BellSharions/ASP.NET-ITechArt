@@ -1,7 +1,7 @@
 ﻿using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace ASP_NET.Models
+namespace Business.Models
 {
     [SwaggerSchema(Required = new[] { "Description" })]
     public class CreateUserModel
