@@ -12,6 +12,7 @@ using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
 using Business;
+using ASP_NET.Services;
 
 namespace ASP_NET
 {
@@ -27,6 +28,9 @@ namespace ASP_NET
         {
             services.Configure<SmtpOptions>(
             Configuration.GetSection(nameof(SmtpOptions)));
+            services.Configure<CloudinaryOptions>(
+            Configuration.GetSection(nameof(CloudinaryOptions)));
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();

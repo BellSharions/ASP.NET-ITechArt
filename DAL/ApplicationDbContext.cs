@@ -17,6 +17,7 @@ namespace DAL
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.Entity<Product>().HasQueryFilter(b => !b.IsDeleted);
         }
         public DbSet<Product> Products {  get; set; }
     }

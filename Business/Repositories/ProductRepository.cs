@@ -2,6 +2,8 @@
 using Business.Interfaces;
 using DAL;
 using DAL.Entities;
+using DAL.Entities.Models;
+using DAL.Enums;
 using DAL.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -38,6 +40,16 @@ namespace Business.Repositories
                 Take(limit).
                 ToListAsync();
             return result;
+        }
+
+        public async Task<ServiceResult> DeleteProductAsync(int id)
+        {
+            var result = await _dbContext.Products.FirstOrDefaultAsync(t => t.Id == id);
+            if(result == null)
+                return new ServiceResult(ResultType.BadRequest, "Invalid id");
+            result.IsDeleted = true;
+            _dbContext.SaveChanges();
+            return new ServiceResult(ResultType.Success, "Success");
         }
     }
 }

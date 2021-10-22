@@ -1,12 +1,12 @@
-﻿using AutoMapper;
+﻿using Business.DTO;
 using Business.Interfaces;
-using Business.Repositories;
-using DAL;
 using DAL.Entities;
+using DAL.Entities.Models;
+using DAL.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ASP_NET.Controllers.InformationControllers
@@ -39,6 +39,22 @@ namespace ASP_NET.Controllers.InformationControllers
             return Ok(result);
         }
 
+        [HttpGet("id/{id}")]
+        [SwaggerOperation(
+            Summary = "Find product info",
+            Description = "Uses specified product id to find it in the database",
+            OperationId = "FindProductInfo",
+            Tags = new[] { "Search", "Product" })]
+        [SwaggerResponse(200, "Returned product info", typeof(ProductInfoDto))]
+        [SwaggerResponse(400, "No products were found")]
+        public async Task<IActionResult> FindProductInfo(int id)
+        {
+            var result = await _productService.GetProductInfoByIdAsync(id);
+            if (result == null)
+                return BadRequest("There are no products in the database");
+            return Ok(result);
+        }
+
         [HttpGet("")]
         [SwaggerOperation(
             Summary = "Search",
@@ -55,6 +71,59 @@ namespace ASP_NET.Controllers.InformationControllers
             if (result == null)
                 return BadRequest("No items were located");
             return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("")]
+        [SwaggerOperation(
+            Summary = "Create product",
+            Description = "Creates new product, using given information",
+            OperationId = "CreateProduct",
+            Tags = new[] { "Product", "Information" })]
+        [SwaggerResponse(200, "Product was created")]
+        [SwaggerResponse(400, "Product was not created")]
+        public async Task<IActionResult> CreateProduct([FromForm, SwaggerParameter("Information to create product", Required = true)] ProductCreationDto info)
+        {
+            var result = await _productService.CreateProductAsync(info);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
+        }
+
+        [HttpPut("")]
+        [SwaggerOperation(
+            Summary = "Change product information",
+            Description = "Searches specified product and changes information taken from body",
+            OperationId = "ChangeProductInfo",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "Product information was updated")]
+        [SwaggerResponse(400, "Product information was not updated")]
+        public async Task<IActionResult> ChangeProductInfo([FromForm, SwaggerParameter("Modified user information", Required = true)] ProductChangeDto info)
+        {
+            var result = await _productService.ChangeProductInfoAsync(info);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("id/{id}")]
+        [SwaggerOperation(
+            Summary = "Delete product",
+            Description = "Searches specified product by id and deletes it",
+            OperationId = "DeleteProduct",
+            Tags = new[] { "Information", "Product" })]
+        [SwaggerResponse(200, "Product was deleted")]
+        [SwaggerResponse(400, "Product was not deleted")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var result = await _productService.DeleteProduct(id);
+            if (result.Type == ResultType.BadRequest)
+                return BadRequest(result.Message);
+            return Ok(result.Message);
+
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
