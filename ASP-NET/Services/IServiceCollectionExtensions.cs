@@ -1,4 +1,5 @@
-﻿using Business.Filters;
+﻿using Business;
+using Business.Filters;
 using Business.Interfaces;
 using Business.Repositories;
 using Business.Services;
@@ -11,6 +12,10 @@ namespace ASP_NET.Services
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<ActionFilters>();
+            services.AddScoped<CloudinaryOptions>();
+            services.AddScoped<SmtpOptions>();
+            services.AddTransient<ICloudinaryService, CloudinaryService>();
+            services.AddTransient<ISmtpService, MailSender>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUserRepository, UserRepository>();

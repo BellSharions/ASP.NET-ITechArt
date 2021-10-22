@@ -4,10 +4,7 @@ using Business.Interfaces;
 using DAL.Entities;
 using DAL.Entities.Models;
 using DAL.Enums;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Business.Services
@@ -16,15 +13,14 @@ namespace Business.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IRatingRepository _ratingRepository;
-        private readonly CloudinaryOptions _options;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
-        private readonly string _regexPublicId = @"[a-zA-Z]+([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?[a-zA-Z]+\.";
 
-        public ProductService(IProductRepository productRepository, IRatingRepository ratingRepository, IOptions<CloudinaryOptions> SmtpOptionsAccessor, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IRatingRepository ratingRepository, ICloudinaryService clodinaryService, IMapper mapper)
         {
             _productRepository = productRepository;
             _ratingRepository = ratingRepository;
-            _options = SmtpOptionsAccessor.Value;
+            _cloudinaryService = clodinaryService;
             _mapper = mapper;
         }
 
@@ -55,9 +51,8 @@ namespace Business.Services
         {
             if (info == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var upload = new CloudinaryService(_options);
-            var logoResult = await upload.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
-            var bgResult = await upload.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
+            var logoResult = await _cloudinaryService.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
+            var bgResult = await _cloudinaryService.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
             Product product = new Product()
             {
                 Name = info.Name,
@@ -84,15 +79,12 @@ namespace Business.Services
             if (foundProduct == null)
                 return new ServiceResult(ResultType.BadRequest, "No product was found");
 
-            var helper = new CloudinaryService(_options);
-            var oldPublicId = Regex.Matches(foundProduct.Logo, _regexPublicId)[0].Value.Split(".")[0];
-
-            var deletionResult = helper.DeleteImage(oldPublicId);
+            var deletionResult = _cloudinaryService.DeleteImage(foundProduct.Logo);
             if (deletionResult == null)
                 return new ServiceResult(ResultType.BadRequest, "Deletion was haulted");
 
-            var logoResult = await helper.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
-            var bgResult = await helper.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
+            var logoResult = await _cloudinaryService.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
+            var bgResult = await _cloudinaryService.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
             _mapper.Map(info, foundProduct);
             foundProduct.Logo = logoResult;
             foundProduct.Background = bgResult;

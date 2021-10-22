@@ -18,17 +18,17 @@ namespace Business.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserRepository _userRepository;
-        private readonly SmtpOptions _options;
+        private readonly ISmtpService _smtpService;
         private readonly IMapper _mapper;
 
         private readonly string emailRegex = @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
         private readonly string passwordRegex = @"^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!*@#$%^&+=]).*$";
-        public UserService(UserManager<User> userManager, IMapper mapper, SignInManager<User> signInManager, IUserRepository userRepository, IOptions<SmtpOptions> SmtpOptionsAccessor)
+        public UserService(UserManager<User> userManager, IMapper mapper, SignInManager<User> signInManager, IUserRepository userRepository, ISmtpService smtpService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userRepository = userRepository;
-            _options = SmtpOptionsAccessor.Value;
+            _smtpService = smtpService;
             _mapper = mapper;
         }
         public async Task<ServiceResult> ChangePasswordAsync(ChangePasswordUserDto user)
@@ -72,7 +72,7 @@ namespace Business.Services
             await _userManager.AddToRoleAsync(user, "User");
             var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
             var callbackUrl = $"https://localhost:44343/api/auth/email-confirmation?id={user.Id}&token={token}";
-            var sender = new MailSender(_options).SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
+            var sender = _smtpService.SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
             return new ServiceResult(ResultType.Success, "Success");
         }
 

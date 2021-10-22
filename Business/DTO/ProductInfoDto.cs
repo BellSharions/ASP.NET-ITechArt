@@ -1,7 +1,4 @@
-﻿using Business.Enums;
-using DAL.Enums;
-using Microsoft.AspNetCore.Http;
-
+﻿
 namespace Business.DTO
 {
     public class ProductInfoDto
@@ -12,7 +9,7 @@ namespace Business.DTO
         public string Rating { get; set; }
         public string Logo { get; set; }
         public string Background { get; set; }
-        public int Price { get; set; }
+        public decimal Price { get; set; }
         public int Count { get; set; }
         public string DateCreated { get; set; }
         public int TotalRating { get; set; }

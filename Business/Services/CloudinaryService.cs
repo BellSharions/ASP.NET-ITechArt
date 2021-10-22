@@ -1,8 +1,8 @@
 ﻿using Business.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Business.Services
@@ -12,6 +12,8 @@ namespace Business.Services
         private readonly string _name;
         private readonly string _key;
         private readonly string _secret;
+
+        private readonly string _regexPublicId = @"[a-zA-Z]+([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?[a-zA-Z]+\.";
 
         private readonly Cloudinary _cloudinary;
 
@@ -40,8 +42,9 @@ namespace Business.Services
             return uploadResult.SecureUrl.AbsoluteUri.ToString();
         }
 
-        public async Task<string> DeleteImage(string publicId)
+        public async Task<string> DeleteImage(string imageUrl)
         {
+            var publicId = Regex.Matches(imageUrl, _regexPublicId)[0].Value.Split(".")[0];
             var uploadResult = new DeletionResult();
             using (var stream = new MemoryStream())
             {
