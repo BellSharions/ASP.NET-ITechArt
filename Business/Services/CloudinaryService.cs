@@ -1,6 +1,7 @@
 ﻿using Business.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Options;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,17 +18,17 @@ namespace Business.Services
 
         private readonly Cloudinary _cloudinary;
 
-        public CloudinaryService(CloudinaryOptions options)
+        public CloudinaryService(IOptions<CloudinaryOptions> options)
         {
-            _name = options.CloudName;
-            _key = options.ApiKey;
-            _secret = options.ApiSecret;
-            //_cloudinary = new Cloudinary(new Account(
-            //    _name,
-            //    _key,
-            //    _secret
-            //    ));
-            //_cloudinary.Api.Secure = true;
+            _name = options.Value.CloudName;
+            _key = options.Value.ApiKey;
+            _secret = options.Value.ApiSecret;
+            _cloudinary = new Cloudinary(new Account(
+                _name,
+                _key,
+                _secret
+                ));
+            _cloudinary.Api.Secure = true;
         }
 
         public async Task<string> UploadImage(string fileName, Stream stream)
