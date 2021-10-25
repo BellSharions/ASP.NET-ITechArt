@@ -10,6 +10,9 @@ namespace Business.Services
     {
         public static void QueryListAsync(ListProductPageDto info, ref IQueryable<Product> query)
         {
+            if (info.PriceSort != Sorting.Ignore && info.RatingSort != Sorting.Ignore)
+                throw new Exception();
+
             query = info.PriceSort switch
             {
                 Sorting.Asc => query.OrderBy(u => u.Price),

@@ -14,6 +14,7 @@ namespace Business.Interfaces
         Task<Product> GetProductByIdAsync(int id);
         Task<ServiceResult> DeleteProductAsync(int id);
         Task<List<Product>> ListProductPageAsync(ListProductPageDto info);
+        Task RecalculateRating(int id);
 
     }
 }

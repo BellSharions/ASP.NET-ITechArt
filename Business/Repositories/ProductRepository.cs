@@ -7,6 +7,7 @@ using DAL.Entities.Models;
 using DAL.Enums;
 using DAL.Repository;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,13 +57,38 @@ namespace Business.Repositories
         public async Task<List<Product>> ListProductPageAsync(ListProductPageDto info)
         {
             var query = _dbContext.Products.Where(u => u.Genre == info.Genre && u.Rating == info.AgeRating);
-            QueryListHelper.QueryListAsync(info, ref query);
+
+            if (info.PriceSort != Sorting.Ignore && info.RatingSort != Sorting.Ignore)
+                throw new Exception();
+
+            query = info.PriceSort switch
+            {
+                Sorting.Asc => query.OrderBy(u => u.Price),
+                Sorting.Desc => query.OrderByDescending(u => u.Price),
+                Sorting.Ignore => query,
+                _ => throw new Exception()
+            };
+            query = info.RatingSort switch
+            {
+                Sorting.Asc => query.OrderBy(u => u.TotalRating),
+                Sorting.Desc => query.OrderByDescending(u => u.TotalRating),
+                Sorting.Ignore => query,
+                _ => throw new Exception()
+            };
+
             var result = await query
                     .Skip(info.PageNumber * info.PageSize)
                     .Take(info.PageSize)
                     .AsNoTracking()
                     .ToListAsync();
             return result;
+        }
+        public async Task RecalculateRating(int id)
+        {
+            var ratings = await _dbContext.ProductRating.Where(u => u.ProductId == id).AverageAsync(u => u.Rating);
+            var test = await _dbContext.Products.FindAsync(id);
+            test.TotalRating = (int)ratings;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -120,7 +120,7 @@ namespace Business.Services
             var result = await _ratingRepository.CreateAsync(rating);
             if (result == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            await _ratingRepository.RecalculateRating(info.ProductId);
+            await _productRepository.RecalculateRating(info.ProductId);
             return new ServiceResult(ResultType.Success, "Success");
         }
 
@@ -129,7 +129,7 @@ namespace Business.Services
             var result = await _ratingRepository.DeleteAsync(u => u.UserId == userId && u.ProductId == productId);
             if (result == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
-            await _ratingRepository.RecalculateRating(productId);
+            await _productRepository.RecalculateRating(productId);
             return new ServiceResult(ResultType.Success, "Success");
         }
 
@@ -141,7 +141,7 @@ namespace Business.Services
                 Data = list,
                 PageNumber = info.PageNumber,
                 PageSize = info.PageSize,
-                ProductAmount = list.Count
+                ProductAmount = info.PageSize
             };
             return result;
         }

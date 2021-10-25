@@ -27,7 +27,6 @@ namespace DAL.Configuration
                 .Property(b => b.Rating)
                 .IsRequired();
 
-            builder.HasIndex(b => b.Rating);
         }
     }
 }

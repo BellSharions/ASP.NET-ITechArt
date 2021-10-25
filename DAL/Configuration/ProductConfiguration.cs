@@ -33,6 +33,7 @@ namespace DAL.Configuration
             builder.HasIndex(b => b.Platform);
             builder.HasIndex(b => b.TotalRating);
             builder.HasIndex(b => b.DateCreated);
+            builder.HasQueryFilter(b => !b.IsDeleted);
             builder.HasData(
                 new Product{Id = 1, Name = "Ultrakill", Platform = AvailablePlatforms.PC, DateCreated = "03.09.2020", TotalRating = 100, Count = 10, Genre = Enums.AvailableGenres.FPS, Price = 1000, Rating = Enums.AgeRating.PEGI16 },
                 new Product{Id = 2, Name = "Bloodborne", Platform = AvailablePlatforms.PlayStation, DateCreated = "24.04.2015", TotalRating = 84, Count = 15, Genre = Enums.AvailableGenres.RPG, Price = 1250, Rating = Enums.AgeRating.PEGI16 },

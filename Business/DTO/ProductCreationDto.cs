@@ -12,7 +12,7 @@ namespace Business.DTO
         public AgeRating Rating { get; set; }
         public IFormFile Logo { get; set; }
         public IFormFile Background { get; set; }
-        public int Price { get; set; }
+        public decimal Price { get; set; }
         public int Count { get; set; }
         public string DateCreated { get; set; }
         public int TotalRating { get; set; }
