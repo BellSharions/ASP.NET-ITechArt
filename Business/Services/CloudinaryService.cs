@@ -22,12 +22,12 @@ namespace Business.Services
             _name = options.CloudName;
             _key = options.ApiKey;
             _secret = options.ApiSecret;
-            _cloudinary = new Cloudinary(new Account(
-                _name,
-                _key,
-                _secret
-                ));
-            _cloudinary.Api.Secure = true;
+            //_cloudinary = new Cloudinary(new Account(
+            //    _name,
+            //    _key,
+            //    _secret
+            //    ));
+            //_cloudinary.Api.Secure = true;
         }
 
         public async Task<string> UploadImage(string fileName, Stream stream)

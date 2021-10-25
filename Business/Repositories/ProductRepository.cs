@@ -44,20 +44,20 @@ namespace Business.Repositories
             return result;
         }
 
-        public async Task<ServiceResult> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(int id)
         {
             var result = await _dbContext.Products.FirstOrDefaultAsync(t => t.Id == id);
             if (result == null)
-                return new ServiceResult(ResultType.BadRequest, "Invalid id");
+                return false;
             result.IsDeleted = true;
             _dbContext.SaveChanges();
-            return new ServiceResult(ResultType.Success, "Success");
+            return true;
         }
 
-        public async Task<List<Product>> ListProductPageAsync(ListProductPageDto info)
+        public async Task<ProductListFilteredDto> ListProductPageAsync(ListProductPageDto info)
         {
             var query = _dbContext.Products.Where(u => u.Genre == info.Genre && u.Rating == info.AgeRating);
-
+            var productList = new ProductListFilteredDto { Total = await query.CountAsync() };
             if (info.PriceSort != Sorting.Ignore && info.RatingSort != Sorting.Ignore)
                 throw new Exception();
 
@@ -81,7 +81,9 @@ namespace Business.Repositories
                     .Take(info.PageSize)
                     .AsNoTracking()
                     .ToListAsync();
-            return result;
+
+            productList.Products = result;
+            return productList;
         }
         public async Task RecalculateRating(int id)
         {

@@ -9,7 +9,11 @@ namespace DAL.Configuration
         public void Configure(EntityTypeBuilder<ProductRating> builder)
         {
 
-            builder.HasKey(b => new { b.ProductId, b.UserId });
+            builder.HasKey(b => b.RatingId);
+
+            builder
+                .Property(b => b.RatingId)
+                .IsRequired();
 
             builder
                 .HasOne(t => t.Product)

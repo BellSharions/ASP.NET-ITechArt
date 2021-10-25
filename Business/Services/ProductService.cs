@@ -92,9 +92,13 @@ namespace Business.Services
             return new ServiceResult(ResultType.Success, "Success");
         }
 
-        public async Task<ServiceResult> DeleteProduct(int id) => 
-            await _productRepository.
-            DeleteProductAsync(id);
+        public async Task<ServiceResult> DeleteProduct(int id)
+        {
+            var result = await _productRepository.DeleteProductAsync(id);
+            if (!result)
+                return new ServiceResult(ResultType.BadRequest, "Invalid id");
+            return new ServiceResult(ResultType.Success, "Success");
+        }
 
         public async Task<List<TopPlatformDto>> GetTopPlatformsAsync(int count = 3) =>
             await _productRepository.
@@ -111,6 +115,8 @@ namespace Business.Services
 
         public async Task<ServiceResult> AddRatingAsync(int userId, RatingCreationDto info)
         {
+            if(info.Rating < 0 || info.Rating > 100)
+                return new ServiceResult(ResultType.BadRequest, "Invalid information");
             var rating = new ProductRating()
             {
                 UserId = userId,
@@ -138,10 +144,10 @@ namespace Business.Services
             var list = await _productRepository.ListProductPageAsync(info);
             var result = new ProductPageDto
             {
-                Data = list,
+                Data = list.Products,
                 PageNumber = info.PageNumber,
                 PageSize = info.PageSize,
-                ProductAmount = info.PageSize
+                ProductAmount = list.Total
             };
             return result;
         }

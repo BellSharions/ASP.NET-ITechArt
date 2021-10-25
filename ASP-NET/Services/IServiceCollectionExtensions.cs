@@ -12,8 +12,8 @@ namespace ASP_NET.Services
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<ActionFilters>();
-            services.AddScoped<CloudinaryOptions>();
-            services.AddScoped<SmtpOptions>();
+            services.AddTransient<CloudinaryOptions>();
+            services.AddTransient<SmtpOptions>();
             services.AddTransient<ICloudinaryService, CloudinaryService>();
             services.AddTransient<ISmtpService, MailSender>();
             services.AddTransient<IUserService, UserService>();
