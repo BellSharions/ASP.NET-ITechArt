@@ -23,7 +23,7 @@ namespace Business.Repositories
                 return false;
             order.Status = OrderStatus.Paid;
             _dbContext.Entry(order).Property(u => u.Status).IsModified = true;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return true;
 
         }
