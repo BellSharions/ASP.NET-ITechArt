@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using ASP_NET.Models;
-using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
 using Business.Interfaces;
-using DAL;
-using DAL.Entities.Models;
-using DAL.Enums;
+using Business.Models;
 
 namespace ASP_NET.Controllers.AuthControllers
 {
@@ -33,7 +29,7 @@ namespace ASP_NET.Controllers.AuthControllers
         public async Task<IActionResult> SignIn([FromBody, SwaggerParameter("Information containing email and password", Required = true)] CreateUserModel info)
         {
             var result = await _userService.SigninAsync(info);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);
         }
@@ -49,7 +45,7 @@ namespace ASP_NET.Controllers.AuthControllers
         public async Task<IActionResult> SignUp([FromBody, SwaggerParameter("Information containing email and password", Required = true)] CreateUserModel info)
         {
             var result = await _userService.RegisterAsync(info);
-            if(result.Type == ResultType.Success)
+            if(result.Type.ToString() == "Created")
                 return Created("api/auth/sign-up", null);
             return BadRequest(result.Message);
         }
@@ -65,7 +61,7 @@ namespace ASP_NET.Controllers.AuthControllers
         public async Task<IActionResult> EmailConfirm([SwaggerParameter("User ID", Required = true)]int id, [SwaggerParameter("Email confirmation token", Required = true)] string token)
         {
             var isConfirmed = await _userService.ConfirmEmailAsync(id, token);
-            if(isConfirmed.Type == ResultType.NoContent)
+            if(isConfirmed.Type.ToString() == "NoContent")
                 return NoContent();
             return BadRequest(isConfirmed.Message);
         }

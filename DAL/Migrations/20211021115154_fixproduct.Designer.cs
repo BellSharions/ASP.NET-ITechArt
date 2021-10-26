@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211021115154_fixproduct")]
+    partial class fixproduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +55,8 @@ namespace DAL.Migrations
                     b.Property<int>("Platform")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -84,7 +86,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Ultrakill",
                             Platform = 0,
-                            Price = 1000m,
+                            Price = 1000,
                             Rating = 3,
                             TotalRating = 100
                         },
@@ -97,7 +99,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Bloodborne",
                             Platform = 2,
-                            Price = 1250m,
+                            Price = 1250,
                             Rating = 3,
                             TotalRating = 84
                         },
@@ -110,7 +112,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Minecraft",
                             Platform = 1,
-                            Price = 1520m,
+                            Price = 1520,
                             Rating = 3,
                             TotalRating = 95
                         },
@@ -123,7 +125,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Garrys Mod",
                             Platform = 0,
-                            Price = 1430m,
+                            Price = 1430,
                             Rating = 3,
                             TotalRating = 98
                         },
@@ -136,7 +138,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Animal Crossing",
                             Platform = 3,
-                            Price = 1654m,
+                            Price = 1654,
                             Rating = 3,
                             TotalRating = 75
                         },
@@ -149,7 +151,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "HalfLife",
                             Platform = 0,
-                            Price = 1352m,
+                            Price = 1352,
                             Rating = 3,
                             TotalRating = 80
                         },
@@ -162,7 +164,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Sekiro: Shadows Die Twice",
                             Platform = 2,
-                            Price = 1532m,
+                            Price = 1532,
                             Rating = 3,
                             TotalRating = 76
                         },
@@ -175,7 +177,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Until Dawn",
                             Platform = 2,
-                            Price = 1627m,
+                            Price = 1627,
                             Rating = 3,
                             TotalRating = 75
                         },
@@ -188,7 +190,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Portal 2",
                             Platform = 0,
-                            Price = 1243m,
+                            Price = 1243,
                             Rating = 3,
                             TotalRating = 99
                         },
@@ -201,7 +203,7 @@ namespace DAL.Migrations
                             IsDeleted = false,
                             Name = "Skyrim",
                             Platform = 0,
-                            Price = 1234m,
+                            Price = 1234,
                             Rating = 3,
                             TotalRating = 90
                         });
@@ -209,23 +211,18 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.ProductRating", b =>
                 {
-                    b.Property<int>("RatingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("RatingId");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ProductId");
+                    b.HasKey("ProductId", "UserId");
+
+                    b.HasIndex("Rating");
 
                     b.HasIndex("UserId");
 
@@ -264,14 +261,14 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "9ee7c09c-07de-4c42-ae91-7cb36f16aff8",
+                            ConcurrencyStamp = "d3ff9165-6c46-475c-8f12-93752014e2a3",
                             Name = "Admin",
                             NormalizedName = "Administrator"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "a1320471-2dc7-4831-9126-03628e60ae58",
+                            ConcurrencyStamp = "c63aba5d-c9dc-4d41-8952-329664a28d41",
                             Name = "User",
                             NormalizedName = "User"
                         });

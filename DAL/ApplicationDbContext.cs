@@ -3,6 +3,7 @@ using DAL.Entities;
 using DAL.Entities.Roles;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DAL
 {
@@ -15,10 +16,10 @@ namespace DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new ProductConfiguration());
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.Entity<Product>().HasQueryFilter(b => !b.IsDeleted);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
-        public DbSet<Product> Products {  get; set; }
+        public DbSet<Product> Products { get; set; }
+
+        public DbSet<ProductRating> ProductRating { get; set; }
     }
 }

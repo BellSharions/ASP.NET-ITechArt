@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.Entities.Models;
+using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -8,6 +9,6 @@ namespace DAL.Interfaces
     {
         Task<T> CreateAsync(T item);
         Task<T> UpdateItemAsync(T item);
-        Task DeleteAsync(Expression<Func<T, bool>> expression);
+        Task<bool> DeleteAsync(Expression<Func<T, bool>> expression);
     }
 }

@@ -1,13 +1,6 @@
-﻿using ASP_NET.Models;
-using AutoMapper;
-using Business.DTO;
+﻿using Business.DTO;
 using Business.Interfaces;
-using DAL;
-using DAL.Entities;
-using DAL.Entities.Roles;
-using DAL.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -54,10 +47,10 @@ namespace ASP_NET.Controllers.InformationControllers
             Description = "Searches and gets user information that is currently authorized",
             OperationId = "GetUser",
             Tags = new[] { "Information", "User" })]
-        [SwaggerResponse(200, "Returned current user", typeof(User))]
+        [SwaggerResponse(200, "Returned current user", typeof(UserInfoDto))]
         public async Task<IActionResult> GetUser() 
         { 
-            var result = await _userService.FindUserByIdAsync(int.Parse(HttpContext.User.Claims.First().Value));
+            var result = await _userService.FindUserInfoByIdAsync(int.Parse(HttpContext.User.Claims.First().Value));
             return Ok(result);
         }
 
@@ -68,7 +61,7 @@ namespace ASP_NET.Controllers.InformationControllers
             Description = "Searches and changes user password using PATCH method",
             OperationId = "ChangeUserPassword",
             Tags = new[] { "Information", "User" })]
-        [SwaggerResponse(204, "User password was changed", typeof(User))]
+        [SwaggerResponse(204, "User password was changed")]
         [SwaggerResponse(400, "Patch method was incorrect")]
         public async Task<IActionResult> ChangeUserPassword([FromBody, SwaggerParameter("PATCH method to change password", Required = true)] JsonPatchDocument<ChangePasswordUserDto> patchDoc)
         {
@@ -77,7 +70,7 @@ namespace ASP_NET.Controllers.InformationControllers
             var user = new ChangePasswordUserDto();
             patchDoc.ApplyTo(user);
             var result = await _userService.ChangePasswordAsync(user);
-            if (result.Type == ResultType.BadRequest)
+            if (result.Type.ToString() == "BadRequest")
                 return BadRequest(ModelState);
             return Created("user/password", result.Message);
         }

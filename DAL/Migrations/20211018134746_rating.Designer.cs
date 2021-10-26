@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211018134746_rating")]
+    partial class rating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,8 +32,8 @@ namespace DAL.Migrations
                     b.Property<string>("Background")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
+                    b.Property<string>("Count")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DateCreated")
                         .IsRequired()
@@ -53,8 +55,8 @@ namespace DAL.Migrations
                     b.Property<int>("Platform")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("Price")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -78,130 +80,130 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Count = 10,
+                            Count = "10",
                             DateCreated = "03.09.2020",
                             Genre = 2,
                             IsDeleted = false,
                             Name = "Ultrakill",
                             Platform = 0,
-                            Price = 1000m,
+                            Price = "1000",
                             Rating = 3,
                             TotalRating = 100
                         },
                         new
                         {
                             Id = 2,
-                            Count = 15,
+                            Count = "15",
                             DateCreated = "24.04.2015",
                             Genre = 4,
                             IsDeleted = false,
                             Name = "Bloodborne",
                             Platform = 2,
-                            Price = 1250m,
+                            Price = "1250",
                             Rating = 3,
                             TotalRating = 84
                         },
                         new
                         {
                             Id = 3,
-                            Count = 14,
+                            Count = "14",
                             DateCreated = "18.11.2011",
                             Genre = 0,
                             IsDeleted = false,
                             Name = "Minecraft",
                             Platform = 1,
-                            Price = 1520m,
+                            Price = "1520",
                             Rating = 3,
                             TotalRating = 95
                         },
                         new
                         {
                             Id = 4,
-                            Count = 17,
+                            Count = "17",
                             DateCreated = "29.11.2006",
                             Genre = 0,
                             IsDeleted = false,
                             Name = "Garrys Mod",
                             Platform = 0,
-                            Price = 1430m,
+                            Price = "1430",
                             Rating = 3,
                             TotalRating = 98
                         },
                         new
                         {
                             Id = 5,
-                            Count = 25,
+                            Count = "25",
                             DateCreated = "20.03.2020",
                             Genre = 2,
                             IsDeleted = false,
                             Name = "Animal Crossing",
                             Platform = 3,
-                            Price = 1654m,
+                            Price = "1654",
                             Rating = 3,
                             TotalRating = 75
                         },
                         new
                         {
                             Id = 6,
-                            Count = 43,
+                            Count = "43",
                             DateCreated = "19.11.1998",
                             Genre = 2,
                             IsDeleted = false,
                             Name = "HalfLife",
                             Platform = 0,
-                            Price = 1352m,
+                            Price = "1352",
                             Rating = 3,
                             TotalRating = 80
                         },
                         new
                         {
                             Id = 7,
-                            Count = 65,
+                            Count = "65",
                             DateCreated = "22.03.2019",
                             Genre = 4,
                             IsDeleted = false,
                             Name = "Sekiro: Shadows Die Twice",
                             Platform = 2,
-                            Price = 1532m,
+                            Price = "1532",
                             Rating = 3,
                             TotalRating = 76
                         },
                         new
                         {
                             Id = 8,
-                            Count = 15,
+                            Count = "15",
                             DateCreated = "25.09.2015",
                             Genre = 8,
                             IsDeleted = false,
                             Name = "Until Dawn",
                             Platform = 2,
-                            Price = 1627m,
+                            Price = "1627",
                             Rating = 3,
                             TotalRating = 75
                         },
                         new
                         {
                             Id = 9,
-                            Count = 43,
+                            Count = "43",
                             DateCreated = "18.04.2011",
                             Genre = 4,
                             IsDeleted = false,
                             Name = "Portal 2",
                             Platform = 0,
-                            Price = 1243m,
+                            Price = "1243",
                             Rating = 3,
                             TotalRating = 99
                         },
                         new
                         {
                             Id = 10,
-                            Count = 26,
+                            Count = "26",
                             DateCreated = "11.11.2011",
                             Genre = 4,
                             IsDeleted = false,
                             Name = "Skyrim",
                             Platform = 0,
-                            Price = 1234m,
+                            Price = "1234",
                             Rating = 3,
                             TotalRating = 90
                         });
@@ -209,23 +211,18 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.ProductRating", b =>
                 {
-                    b.Property<int>("RatingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("RatingId");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ProductId");
+                    b.HasKey("ProductId", "UserId");
+
+                    b.HasIndex("Rating");
 
                     b.HasIndex("UserId");
 
@@ -264,14 +261,14 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "9ee7c09c-07de-4c42-ae91-7cb36f16aff8",
+                            ConcurrencyStamp = "522faf80-818a-4da0-ad6f-2264a9f2e0bb",
                             Name = "Admin",
                             NormalizedName = "Administrator"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "a1320471-2dc7-4831-9126-03628e60ae58",
+                            ConcurrencyStamp = "44692c59-b9da-4be5-b678-c66d687f51b5",
                             Name = "User",
                             NormalizedName = "User"
                         });
