@@ -11,11 +11,10 @@ namespace DAL.Entities
     {
         public int OrderId { get; set; }
         public int UserId { get; set; }
-        public int ProductId { get; set; }
         public DateTime CreationDate { get; set; }
         public int Amount { get; set; }
         public OrderStatus Status { get; set; }
-        public Product Product { get; set; }
+        public ICollection<OrderList> OrderList { get; set; }
         public User User { get; set; }
 
     }

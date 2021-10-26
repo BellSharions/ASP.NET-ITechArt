@@ -1,7 +1,11 @@
 ﻿using Business.Interfaces;
 using DAL;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Repository;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Business.Repositories
@@ -12,14 +16,34 @@ namespace Business.Repositories
         {
         }
 
-        public Task<bool> DeleteOrderAsync(int id)
+        public async Task<bool> BuyAsync(int id)
         {
-            throw new System.NotImplementedException();
+            var order = await _dbContext.Orders.AsNoTracking().FirstOrDefaultAsync(u => u.OrderId == id);
+            if (order == null && order.Status == OrderStatus.Paid)
+                return false;
+            order.Status = OrderStatus.Paid;
+            _dbContext.Entry(order).Property(u => u.Status).IsModified = true;
+            _dbContext.SaveChanges();
+            return true;
+
         }
 
-        public Task<Order> GetOrderByIdAsync(int id)
+        public async Task<bool> DeleteItemsAsync(int id, ICollection<int> products)
         {
-            throw new System.NotImplementedException();
+            var orders = _dbContext.OrderList.AsNoTracking().Where(x => x.OrderId == id);
+            foreach(var order in products)
+                _dbContext.OrderList.RemoveRange(orders.Where(u => u.ProductId == order));
+
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Order> GetOrderByIdAsync(int id)
+        {
+            var result = await _dbContext.Orders.AsNoTracking().FirstAsync(u => u.OrderId == id);
+            var list = await _dbContext.OrderList.AsNoTracking().Where(u => u.OrderId == id).ToListAsync();
+            result.OrderList = list;
+            return result;
         }
     }
 }

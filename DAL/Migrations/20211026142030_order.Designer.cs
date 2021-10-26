@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211026110129_order")]
+    [Migration("20211026142030_order")]
     partial class order
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,24 +32,47 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("DAL.Entities.OrderList", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId", "ProductId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderList");
                 });
 
             modelBuilder.Entity("DAL.Entities.Product", b =>
@@ -297,14 +320,14 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "1de0325a-7d14-485c-b202-6a43f2580336",
+                            ConcurrencyStamp = "9d57c44b-0b01-4c90-b657-17da17e91cf1",
                             Name = "Admin",
                             NormalizedName = "Administrator"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "3abbde38-4877-45a6-93db-c4dfea3e4d75",
+                            ConcurrencyStamp = "c797aac5-58c0-4979-a0f9-ad09b5c7176f",
                             Name = "User",
                             NormalizedName = "User"
                         });
@@ -487,21 +510,32 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.Order", b =>
                 {
-                    b.HasOne("DAL.Entities.Product", "Product")
-                        .WithMany("OrdersList")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("OrdersList")
+                        .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DAL.Entities.OrderList", b =>
+                {
+                    b.HasOne("DAL.Entities.Order", "Order")
+                        .WithMany("OrderList")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entities.Product", "Product")
+                        .WithMany("OrderList")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("DAL.Entities.ProductRating", b =>
@@ -574,16 +608,21 @@ namespace DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DAL.Entities.Order", b =>
+                {
+                    b.Navigation("OrderList");
+                });
+
             modelBuilder.Entity("DAL.Entities.Product", b =>
                 {
-                    b.Navigation("OrdersList");
+                    b.Navigation("OrderList");
 
                     b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>
                 {
-                    b.Navigation("OrdersList");
+                    b.Navigation("Orders");
 
                     b.Navigation("Ratings");
                 });

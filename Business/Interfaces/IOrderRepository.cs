@@ -11,7 +11,8 @@ namespace Business.Interfaces
     public interface IOrderRepository : IRepository<Order>
     {
         Task<Order> GetOrderByIdAsync(int id);
-        Task<bool> DeleteOrderAsync(int id);
+        Task<bool> BuyAsync(int id);
+        Task<bool> DeleteItemsAsync(int id, ICollection<int> products);
 
     }
 }

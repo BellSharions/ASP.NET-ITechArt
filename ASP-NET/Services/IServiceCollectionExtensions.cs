@@ -21,6 +21,8 @@ namespace ASP_NET.Services
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<IOrderService, OrderService>();
             services.AddTransient<IRatingRepository, RatingRepository>();
         }
     }
