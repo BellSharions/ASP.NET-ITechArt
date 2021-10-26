@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211026110129_order")]
+    partial class order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +49,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("DAL.Entities.Product", b =>
@@ -295,14 +297,14 @@ namespace DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "003d0870-20db-4328-92d8-1a585b9d795c",
+                            ConcurrencyStamp = "1de0325a-7d14-485c-b202-6a43f2580336",
                             Name = "Admin",
                             NormalizedName = "Administrator"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "e901dd04-282e-45fa-88c3-37069c114214",
+                            ConcurrencyStamp = "3abbde38-4877-45a6-93db-c4dfea3e4d75",
                             Name = "User",
                             NormalizedName = "User"
                         });

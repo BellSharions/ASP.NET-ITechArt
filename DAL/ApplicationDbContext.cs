@@ -21,5 +21,6 @@ namespace DAL
         public DbSet<Product> Products { get; set; }
 
         public DbSet<ProductRating> ProductRating { get; set; }
+        public DbSet<Order> Orders { get; set; }
     }
 }

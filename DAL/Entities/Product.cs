@@ -19,6 +19,7 @@ namespace DAL.Entities
         public ICollection<ProductRating> Ratings {  get; set; }
         public int TotalRating {  get; set; }
         public bool IsDeleted {  get; set; }
+        public ICollection<Order> OrdersList { get; set; }
     }
     
 }

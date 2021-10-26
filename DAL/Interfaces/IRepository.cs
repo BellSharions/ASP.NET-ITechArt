@@ -9,6 +9,6 @@ namespace DAL.Interfaces
     {
         Task<T> CreateAsync(T item);
         Task<T> UpdateItemAsync(T item);
-        Task<ServiceResult> DeleteAsync(Expression<Func<T, bool>> expression);
+        Task<bool> DeleteAsync(Expression<Func<T, bool>> expression);
     }
 }
