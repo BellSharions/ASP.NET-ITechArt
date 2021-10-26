@@ -1,7 +1,4 @@
-﻿
-using DAL.Entities;
-using DAL.Enums;
-using System;
+﻿using DAL.Entities;
 using System.Collections.Generic;
 
 namespace Business.DTO
