@@ -133,7 +133,7 @@ namespace Business.Services
         public async Task<ServiceResult> DeleteRatingAsync(int userId, int productId)
         {
             var result = await _ratingRepository.DeleteAsync(u => u.UserId == userId && u.ProductId == productId);
-            if (result == null)
+            if (result == false)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             await _productRepository.RecalculateRating(productId);
             return new ServiceResult(ResultType.Success, "Success");
