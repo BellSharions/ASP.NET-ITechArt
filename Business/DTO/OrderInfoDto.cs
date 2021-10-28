@@ -10,6 +10,6 @@ namespace Business.DTO
         public DateTime CreationDate { get; set; }
         public int Amount { get; set; }
         public OrderStatus Status { get; set; }
-        public ICollection<ProductInfoDto> ProductInfo { get; set; }
+        public List<ProductInfoDto> ProductInfo { get; set; }
     }
 }

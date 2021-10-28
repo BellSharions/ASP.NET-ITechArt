@@ -13,12 +13,10 @@ namespace Business.Services
     public class OrderService :IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository, IMapper mapper)
         {
-            _productRepository = productRepository;
             _orderRepository = orderRepository;
             _mapper = mapper;
         }
@@ -32,7 +30,7 @@ namespace Business.Services
             if (foundOrder == null || foundOrder.Status == OrderStatus.Paid)
                 return new ServiceResult(ResultType.BadRequest, "No order was found");
 
-            if(foundOrder.OrderList.First(u => u.ProductId == info.ProductId) == null)
+            if(foundOrder.OrderList.FirstOrDefault(u => u.ProductId == info.ProductId) == null)
                 return new ServiceResult(ResultType.BadRequest, "No product was found");
 
             foundOrder.OrderList.First(u => u.ProductId == info.ProductId).Amount = info.Amount;
@@ -62,14 +60,10 @@ namespace Business.Services
         public async Task<OrderInfoDto> GetOrderInfoByIdAsync(int id)
         {
             var data = await _orderRepository.GetOrderByIdAsync(id);
-            var result = new OrderInfoDto();
-            _mapper.Map(data, result);
-            var list = new List<ProductInfoDto>();
-            var listp = new List<Product>();
-            foreach (OrderList item in data.OrderList)
-                listp.Add(await _productRepository.GetProductByIdAsync(item.ProductId));
-            _mapper.Map(listp, list);
-            result.ProductInfo = list;
+            if (data == null)
+                return null;
+            var result = _mapper.Map<Order, OrderInfoDto>(data);
+            result.ProductInfo = _mapper.Map<List<Product>, List<ProductInfoDto>>(data.OrderList.Select(t => t.Product).ToList());
             return result;
         }
 

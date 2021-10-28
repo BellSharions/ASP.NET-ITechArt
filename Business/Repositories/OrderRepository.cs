@@ -40,9 +40,16 @@ namespace Business.Repositories
 
         public async Task<Order> GetOrderByIdAsync(int id)
         {
-            var result = await _dbContext.Orders.AsNoTracking().FirstAsync(u => u.OrderId == id);
-            var list = await _dbContext.OrderList.AsNoTracking().Where(u => u.OrderId == id).ToListAsync();
-            result.OrderList = list;
+            var result = await _dbContext.Orders
+                .Include(u => u.OrderList)
+                .AsNoTracking()
+                .Where(u=>u.OrderId==id)
+                .FirstOrDefaultAsync();
+            result.OrderList = await _dbContext.OrderList
+                .Include(u => u.Product)
+                .AsNoTracking()
+                .Where(u => u.OrderId == id)
+                .ToListAsync();
             return result;
         }
     }
