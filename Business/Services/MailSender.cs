@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Business.Interfaces;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using Serilog;
 
@@ -14,13 +15,13 @@ namespace Business
         private readonly string _username;
         private readonly string _password;
         private readonly string _domain;
-        public MailSender(SmtpOptions options)
+        public MailSender(IOptions<SmtpOptions> options)
         {
-            _host = options.Host;
-            _port = options.Port;
-            _username = options.Username;
-            _password = options.Password;
-            _domain = options.Domain;
+            _host = options.Value.Host;
+            _port = options.Value.Port;
+            _username = options.Value.Username;
+            _password = options.Value.Password;
+            _domain = options.Value.Domain;
         }
         
         public async Task SendAsync(string to, string subject, string body)

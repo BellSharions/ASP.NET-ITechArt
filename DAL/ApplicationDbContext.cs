@@ -1,5 +1,4 @@
-﻿using DAL.Configuration;
-using DAL.Entities;
+﻿using DAL.Entities;
 using DAL.Entities.Roles;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,5 +20,7 @@ namespace DAL
         public DbSet<Product> Products { get; set; }
 
         public DbSet<ProductRating> ProductRating { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderList> OrderList { get; set; }
     }
 }

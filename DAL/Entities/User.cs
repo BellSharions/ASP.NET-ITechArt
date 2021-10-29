@@ -7,5 +7,6 @@ namespace DAL.Entities
     {
         public string AdressDelivery {  get; set; }
         public ICollection<ProductRating> Ratings { get; set; }
+        public ICollection<Order> Orders { get; set; }
     }
 }

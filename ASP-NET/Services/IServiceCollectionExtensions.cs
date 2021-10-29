@@ -14,13 +14,15 @@ namespace ASP_NET.Services
         {
             services.AddScoped<ActionFilters>();
             services.AddOptions<CloudinaryOptions>();
-            services.AddTransient<SmtpOptions>();
+            services.AddOptions<SmtpOptions>();
             services.AddTransient<ICloudinaryService, CloudinaryService>();
             services.AddTransient<ISmtpService, MailSender>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<IOrderService, OrderService>();
             services.AddTransient<IRatingRepository, RatingRepository>();
         }
     }
