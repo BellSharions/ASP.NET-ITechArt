@@ -42,14 +42,9 @@ namespace Business.Repositories
         {
             var result = await _dbContext.Orders
                 .Include(u => u.OrderList)
+                .ThenInclude(u=>u.Product)
                 .AsNoTracking()
-                .Where(u=>u.OrderId==id)
-                .FirstOrDefaultAsync();
-            result.OrderList = await _dbContext.OrderList
-                .Include(u => u.Product)
-                .AsNoTracking()
-                .Where(u => u.OrderId == id)
-                .ToListAsync();
+                .FirstOrDefaultAsync(u => u.OrderId == id);
             return result;
         }
     }
