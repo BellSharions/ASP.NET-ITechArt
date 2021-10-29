@@ -2,8 +2,6 @@
 using DAL;
 using DAL.Entities;
 using DAL.Repository;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Business.Repositories
 {
