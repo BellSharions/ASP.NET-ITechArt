@@ -61,9 +61,8 @@ namespace ASP_NET.Controllers.InformationControllers
                 user = await _userService.FindUserInfoByIdAsync(userId);
                 var cacheExpiryOptions = new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpiration = DateTime.Now.AddMinutes(5),
                     Priority = CacheItemPriority.High,
-                    SlidingExpiration = TimeSpan.FromMinutes(2)
+                    SlidingExpiration = TimeSpan.FromDays(5)
                 };
                 _memoryCache.Set(userId, user, cacheExpiryOptions);
             }
