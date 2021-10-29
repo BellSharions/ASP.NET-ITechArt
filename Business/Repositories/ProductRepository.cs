@@ -1,9 +1,7 @@
 ﻿using Business.DTO;
 using Business.Interfaces;
-using Business.Services;
 using DAL;
 using DAL.Entities;
-using DAL.Entities.Models;
 using DAL.Enums;
 using DAL.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -87,7 +85,7 @@ namespace Business.Repositories
         }
         public async Task RecalculateRating(int id)
         {
-            var ratings = await _dbContext.ProductRating.Where(u => u.ProductId == id).AverageAsync(u => u.Rating);
+            var ratings = await _dbContext.ProductRating.AsNoTracking().Where(u => u.ProductId == id).AverageAsync(u => u.Rating);
             var test = await _dbContext.Products.FindAsync(id);
             test.TotalRating = (int)ratings;
             await _dbContext.SaveChangesAsync();

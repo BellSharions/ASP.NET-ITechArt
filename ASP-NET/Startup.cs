@@ -12,6 +12,8 @@ using DAL;
 using DAL.Entities;
 using DAL.Entities.Roles;
 using Business;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace ASP_NET
 {
@@ -25,11 +27,29 @@ namespace ASP_NET
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCompression(options => 
+            { 
+                options.EnableForHttps = true; options.Providers.Add<GzipCompressionProvider>(); 
+            }) ;
+            services.Configure<GzipCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Optimal;
+            });
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            });
+
+            services.AddMemoryCache();
+
             services.Configure<SmtpOptions>(
             Configuration.GetSection(nameof(SmtpOptions)));
              services.Configure<CloudinaryOptions>(
             Configuration.GetSection(nameof(CloudinaryOptions)));
+
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();
@@ -47,25 +67,32 @@ namespace ASP_NET
                 });
                 
             });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
                     x => x.MigrationsAssembly("DAL")));
+
             services.AddDatabaseDeveloperPageExceptionFilter();
+
             services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()
                 .AddRoleManager<RoleManager>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
+
             Services.IServiceCollectionExtensions.RegisterServices(services);
+
             services.AddHealthChecks()
                 .AddCheck(
                     "OrderingDB-check",
                     new SqlConnectionHealthCheck(Configuration.GetConnectionString("DefaultConnection")),
                     HealthStatus.Unhealthy,
                     new string[] { "orderingdb" });
+
             services.AddRazorPages().AddNewtonsoftJson();
         }
 
@@ -81,6 +108,7 @@ namespace ASP_NET
                app.UseExceptionHandler("/Error");
                app.UseHsts();
             }
+            app.UseResponseCompression();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI();

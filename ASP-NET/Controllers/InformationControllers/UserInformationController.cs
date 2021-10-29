@@ -3,7 +3,9 @@ using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,10 +18,12 @@ namespace ASP_NET.Controllers.InformationControllers
     public class UserInformationController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IMemoryCache _memoryCache;
 
-        public UserInformationController(IUserService userService)
+        public UserInformationController(IUserService userService, IMemoryCache memoryCache)
         {
             _userService = userService;
+            _memoryCache = memoryCache;
         }
 
         [Authorize(Roles = "User, Admin")]
@@ -36,6 +40,7 @@ namespace ASP_NET.Controllers.InformationControllers
             var result = await _userService.UpdateUserInfoAsync(int.Parse(HttpContext.User.Claims.First().Value), info);
             if(result == null)
                 return BadRequest();
+            _memoryCache.Remove(int.Parse(HttpContext.User.Claims.First().Value));
             return Ok();
 
         }
@@ -49,9 +54,19 @@ namespace ASP_NET.Controllers.InformationControllers
             Tags = new[] { "Information", "User" })]
         [SwaggerResponse(200, "Returned current user", typeof(UserInfoDto))]
         public async Task<IActionResult> GetUser() 
-        { 
-            var result = await _userService.FindUserInfoByIdAsync(int.Parse(HttpContext.User.Claims.First().Value));
-            return Ok(result);
+        {
+            int userId = int.Parse(HttpContext.User.Claims.First().Value);
+            if (!_memoryCache.TryGetValue(userId, out UserInfoDto user))
+            {
+                user = await _userService.FindUserInfoByIdAsync(userId);
+                var cacheExpiryOptions = new MemoryCacheEntryOptions
+                {
+                    Priority = CacheItemPriority.High,
+                    SlidingExpiration = TimeSpan.FromDays(5)
+                };
+                _memoryCache.Set(userId, user, cacheExpiryOptions);
+            }
+            return Ok(user);
         }
 
         [Authorize(Roles = "User, Admin")]
@@ -72,6 +87,7 @@ namespace ASP_NET.Controllers.InformationControllers
             var result = await _userService.ChangePasswordAsync(user);
             if (result.Type.ToString() == "BadRequest")
                 return BadRequest(ModelState);
+            _memoryCache.Remove(int.Parse(HttpContext.User.Claims.First().Value));
             return Created("user/password", result.Message);
         }
     }

@@ -3,7 +3,6 @@ using Business.Filters;
 using Business.Interfaces;
 using Business.Repositories;
 using Business.Services;
-using CloudinaryDotNet;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ASP_NET.Services
