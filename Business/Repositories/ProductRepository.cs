@@ -87,7 +87,7 @@ namespace Business.Repositories
         }
         public async Task RecalculateRating(int id)
         {
-            var ratings = await _dbContext.ProductRating.Where(u => u.ProductId == id).AverageAsync(u => u.Rating);
+            var ratings = await _dbContext.ProductRating.AsNoTracking().Where(u => u.ProductId == id).AverageAsync(u => u.Rating);
             var test = await _dbContext.Products.FindAsync(id);
             test.TotalRating = (int)ratings;
             await _dbContext.SaveChangesAsync();
