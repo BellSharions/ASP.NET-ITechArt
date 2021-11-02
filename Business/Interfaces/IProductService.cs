@@ -13,7 +13,7 @@ namespace Business.Interfaces
         Task<Product> GetProductByIdAsync(int id);
         Task<ProductInfoDto> GetProductInfoByIdAsync(int id);
         Task<ServiceResult> CreateProductAsync(ProductCreationDto info);
-        Task<ServiceResult> DeleteProduct(int id);
+        Task<ServiceResult> DeleteProductAsync(int id);
         Task<ServiceResult> ChangeProductInfoAsync(int id, ProductChangeDto info);
         Task<ServiceResult> AddRatingAsync(int userId, RatingCreationDto info);
         Task<ServiceResult> DeleteRatingAsync(int userId, int productId);

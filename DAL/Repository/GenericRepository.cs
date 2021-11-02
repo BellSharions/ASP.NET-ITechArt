@@ -57,23 +57,23 @@ namespace DAL.Repository
 
             return entitiesList;
         }
-        public async Task<T> UpdateItemAsync(T item)
+        public async Task<bool> UpdateItemAsync(T item)
         {
             try
             {
                 _dbSet.Update(item);
 
-                await _dbContext.SaveChangesAsync();
+                if (await _dbContext.SaveChangesAsync() == 0)
+                    return false;
 
                 _dbContext.Entry(item).State = EntityState.Detached;
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw new Exception($"Unable to update item. Error: {e.Message}");
             }
-
-            return item;
         }
 
         public async Task<bool> DeleteAsync(Expression<Func<T, bool>> expression)

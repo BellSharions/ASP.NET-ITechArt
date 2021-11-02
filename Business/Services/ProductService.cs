@@ -31,7 +31,7 @@ namespace Business.Services
         public async Task<ProductInfoDto> GetProductInfoByIdAsync(int id)
         {
             var result = await _productRepository.GetProductByIdAsync(id);
-            if(result == null)
+            if(result.Id == 0)
                 return null;
             var info = new ProductInfoDto
             {
@@ -51,7 +51,7 @@ namespace Business.Services
 
         public async Task<ServiceResult> CreateProductAsync(ProductCreationDto info)
         {
-            if (info == null)
+            if (info.Name == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             var logoResult = await _cloudinaryService.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
             var bgResult = await _cloudinaryService.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
@@ -90,11 +90,12 @@ namespace Business.Services
             _mapper.Map(info, foundProduct);
             foundProduct.Logo = logoResult;
             foundProduct.Background = bgResult;
-            await _productRepository.UpdateItemAsync(foundProduct);
-            return new ServiceResult(ResultType.Success, "Success");
+            if(await _productRepository.UpdateItemAsync(foundProduct))
+                return new ServiceResult(ResultType.Success, "Success");
+            return new ServiceResult(ResultType.BadRequest, "Update was haulted");
         }
 
-        public async Task<ServiceResult> DeleteProduct(int id)
+        public async Task<ServiceResult> DeleteProductAsync(int id)
         {
             var result = await _productRepository.DeleteProductAsync(id);
             if (!result)
@@ -126,7 +127,7 @@ namespace Business.Services
                 Rating = info.Rating
             };
             var result = await _ratingRepository.CreateAsync(rating);
-            if (result == null)
+            if (result.Rating != info.Rating)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             await _productRepository.RecalculateRating(info.ProductId);
             return new ServiceResult(ResultType.Success, "Success");
