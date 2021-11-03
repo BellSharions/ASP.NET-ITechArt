@@ -5,6 +5,7 @@ using DAL.Entities;
 using DAL.Entities.Models;
 using DAL.Enums;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Business.Services
@@ -78,13 +79,12 @@ namespace Business.Services
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
 
             var foundProduct = await _productRepository.GetProductByIdAsync(id);
-            if (foundProduct == null)
+            if (foundProduct.Name == null)
                 return new ServiceResult(ResultType.BadRequest, "No product was found");
 
-            var deletionResult = _cloudinaryService.DeleteImage(foundProduct.Logo);
-            if (deletionResult == null)
+            var deletionResult = await _cloudinaryService.DeleteImage(foundProduct.Logo);
+            if (deletionResult.Type == ResultType.BadRequest)
                 return new ServiceResult(ResultType.BadRequest, "Deletion was haulted");
-
             var logoResult = await _cloudinaryService.UploadImage(info.Logo.FileName, info.Logo.OpenReadStream());
             var bgResult = await _cloudinaryService.UploadImage(info.Background.FileName, info.Background.OpenReadStream());
             _mapper.Map(info, foundProduct);

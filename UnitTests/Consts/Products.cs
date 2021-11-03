@@ -51,6 +51,19 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
+        public static Product TestProduct3 = new()
+        {
+            Id = 2,
+            Name = "Ultrakill",
+            Platform = AvailablePlatforms.PC,
+            TotalRating = 99,
+            Genre = AvailableGenres.FPS,
+            Rating = AgeRating.PEGI18,
+            Logo = null,
+            Background = null,
+            Price = 99,
+            Count = 99
+        };
 
         public static ProductInfoDto TestProductInfo1 = new()
         {

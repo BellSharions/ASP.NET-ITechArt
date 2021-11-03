@@ -11,6 +11,7 @@ using FakeItEasy;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 using UnitTests.Consts;
 using Xunit;
@@ -365,6 +366,7 @@ namespace UnitTests.ServiceTests
             var product = Products.TestProduct1;
 
             A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => cloudinaryService.DeleteImage(Products.TestProduct3.Logo)).Returns(serviceResult);
             A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(true);
 
             //Act
@@ -374,6 +376,87 @@ namespace UnitTests.ServiceTests
             Assert.Equal(serviceResult.Type, result.Type);
 
             A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task ChangeProductInfoAsyncNegative_UpdateHaulted_ReturnServiceResultWithBadRequest()
+        {
+            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
+
+            int userId = 1;
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "");
+            var nullRating = new ProductRating();
+            var product = Products.TestProduct1;
+
+            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+
+            //Act
+            var result = await productService.ChangeProductInfoAsync(userId, Products.TestChange1);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task ChangeProductInfoAsyncNegative_InfoIsNull_ReturnServiceResultWithBadRequest()
+        {
+            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
+
+            int userId = 1;
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "");
+            var nullRating = new ProductRating();
+            var nullProduct = new Product();
+
+            A.CallTo(() => productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
+            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+
+            //Act
+            var result = await productService.ChangeProductInfoAsync(userId, null);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task ChangeProductInfoAsyncNegative_InvalidId_ReturnServiceResultWithBadRequest()
+        {
+            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
+
+            int userId = 1;
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "");
+            var nullProduct = new Product();
+
+            A.CallTo(() => productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
+            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+
+            //Act
+            var result = await productService.ChangeProductInfoAsync(userId, Products.TestChange1);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task ChangeProductInfoAsyncNegative_NullLogo_ReturnServiceResultWithBadRequest()
+        {
+            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
+
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "");
+            var nullProduct = new Product();
+
+            A.CallTo(() => productRepository.GetProductByIdAsync(Products.TestProduct3.Id)).Returns(Products.TestProduct3);
+            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct3)).Returns(false);
+            A.CallTo(() => cloudinaryService.DeleteImage(Products.TestProduct3.Logo)).Returns(serviceResult);
+            //Act
+            var result = await productService.ChangeProductInfoAsync(2, Products.TestChange1);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
         }
     }
 }
