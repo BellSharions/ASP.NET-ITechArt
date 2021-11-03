@@ -23,11 +23,11 @@ namespace Business.Services
 
         public async Task<ServiceResult> ChangeOrderAmountAsync(int OrderId, OrderAmountChangeDto info)
         {
-            if (info == null)
+            if (info.UserId == 0 || info.ProductId == 0)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
 
             var foundOrder = await _orderRepository.GetOrderByIdAsync(OrderId);
-            if (foundOrder == null || foundOrder.Status == OrderStatus.Paid)
+            if (foundOrder.OrderId == 0 || foundOrder.Status == OrderStatus.Paid)
                 return new ServiceResult(ResultType.BadRequest, "No order was found");
 
             if(foundOrder.OrderList.FirstOrDefault(u => u.ProductId == info.ProductId) == null)
@@ -60,7 +60,7 @@ namespace Business.Services
         public async Task<OrderInfoDto> GetOrderInfoByIdAsync(int id)
         {
             var data = await _orderRepository.GetOrderByIdAsync(id);
-            if (data == null)
+            if (data.OrderId == 0)
                 return null;
             var result = _mapper.Map<Order, OrderInfoDto>(data);
             result.ProductInfo = _mapper.Map<List<Product>, List<ProductInfoDto>>(data.OrderList.Select(t => t.Product).ToList());
@@ -77,7 +77,7 @@ namespace Business.Services
 
             if(await _orderRepository.BuyAsync(orderId))
                 return new ServiceResult(ResultType.Success, "Success");
-            return new ServiceResult(ResultType.BadRequest, "Invalid Id");
+            return new ServiceResult(ResultType.BadRequest, "Buying action was haulted");
         }
     }
 }

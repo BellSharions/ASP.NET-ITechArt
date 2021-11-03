@@ -64,6 +64,12 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
+        public static List<Product> TestProductList1 = new()
+        {
+            TestProduct1,
+            TestProduct2,
+            TestProduct3
+        };
 
         public static ProductInfoDto TestProductInfo1 = new()
         {
