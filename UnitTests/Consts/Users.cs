@@ -1,6 +1,7 @@
 ﻿using Business.DTO;
 using Business.Models;
 using DAL.Entities;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,5 +136,38 @@ namespace UnitTests.Consts
             Email = "bellsharions@gmail.com",
             PhoneNumber = "375293798389"
         };
+        public static UserInfoDto UserInfoTest3 = new()
+        {
+            UserName = "BelL",
+            AdressDelivery = "tesT",
+            Email = "bellsharions@gmail.com",
+            PhoneNumber = "375293798389"
+        };
+        public static ChangeUserInfoDto UserInfoTest2 = new()
+        {
+            UserName = "Bell",
+            AdressDelivery = "test",
+            Email = "bellsharions@gmail.com",
+            PhoneNumber = "375293798389"
+        };
+        public static ChangePasswordUserDto UserPasswordTest2 = new()
+        {
+            Id = 1,
+            OldPassword = "test",
+            NewPassword = "test2"
+        };
+        public static JsonPatchDocument<ChangePasswordUserDto> GetJsonPatchDocumentForResetPassword(
+            int userId = 1,
+            string oldPassword = "test",
+            string newPassword = "test2")
+        {
+            var jsonPatch = new JsonPatchDocument<ChangePasswordUserDto>();
+
+            jsonPatch.Replace(j => j.Id, userId);
+            jsonPatch.Replace(j => j.OldPassword, oldPassword);
+            jsonPatch.Replace(j => j.NewPassword, newPassword);
+
+            return jsonPatch;
+        }
     }
 }
