@@ -33,16 +33,17 @@ namespace Business.Services
         }
         public async Task<ServiceResult> ChangePasswordAsync(ChangePasswordUserDto user)
         {
-            var newUser = await _userRepository.GetUser(user.Id);
             if (!(await _userRepository.UpdatePasswordAsync(user)))
                 return new ServiceResult(ResultType.BadRequest, "Password was not updated");
-            return new ServiceResult(ResultType.Created, "Password was not updated");
+            return new ServiceResult(ResultType.Created, "Password was updated");
         }
 
         public async Task<ServiceResult> ConfirmEmailAsync(int id, string token)
         {
-            if (!(_userManager.FindByIdAsync((id).ToString()).Result == null) &&
-                !(await _userManager.ConfirmEmailAsync(_userManager.FindByIdAsync((id).ToString()).Result, token)).Succeeded)
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            var test = await _userManager.ConfirmEmailAsync(user, token);
+            if (user.Id == 0 &&
+                !test.Succeeded)
                 return new ServiceResult(ResultType.BadRequest, "Email was not confirmed");
             return new ServiceResult(ResultType.Success, "Success");
         }
@@ -58,9 +59,10 @@ namespace Business.Services
 
         public async Task<ServiceResult> RegisterAsync(CreateUserModel info)
         {
-            if (!Regex.IsMatch(info.Email, emailRegex) &&
-                !Regex.IsMatch(info.Password, passwordRegex) &&
-                _userManager.FindByEmailAsync(info.Email).IsCompletedSuccessfully)
+            var foundUser = await _userManager.FindByEmailAsync(info.Email);
+            if (!Regex.IsMatch(info.Email, emailRegex) ||
+                !Regex.IsMatch(info.Password, passwordRegex) ||
+                foundUser.Id != 0)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             User user = new User() { 
                 Email = info.Email, 
@@ -72,21 +74,24 @@ namespace Business.Services
             await _userManager.AddToRoleAsync(user, "User");
             var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
             var callbackUrl = $"https://localhost:44343/api/auth/email-confirmation?id={user.Id}&token={token}";
-            var sender = _smtpService.SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
+            await _smtpService.SendAsync(info.Email, "Email confirmation", "Please use this link to confirm your email: " + callbackUrl);
             return new ServiceResult(ResultType.Success, "Success");
         }
 
         public async Task<ServiceResult> SigninAsync(CreateUserModel info)
         {
-            var foundUser = _userManager.FindByEmailAsync(info.Email)?.Result;
-            if (!Regex.IsMatch(info.Email, emailRegex) &&
-                !Regex.IsMatch(info.Password, passwordRegex) &&
-                !foundUser.EmailConfirmed &&
-                !await _userManager.CheckPasswordAsync(foundUser, info.Password))
+            var foundUser = await _userManager.FindByEmailAsync(info.Email);
+            var passwordCheck = await _userManager.CheckPasswordAsync(foundUser, info.Password);
+            if (foundUser.Id == 0 ||
+                !Regex.IsMatch(info.Email, emailRegex) ||
+                !Regex.IsMatch(info.Password, passwordRegex) ||
+                !foundUser.EmailConfirmed ||
+                !passwordCheck)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
+
             await _signInManager.SignInAsync(foundUser, true);
             return new ServiceResult(ResultType.Success, "Success");
-            }
+        }
 
         public async Task<User> UpdateUserInfoAsync(int id, ChangeUserInfoDto user) 
         {
