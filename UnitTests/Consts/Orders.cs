@@ -20,6 +20,33 @@ namespace UnitTests.Consts
             OrderList = new List<OrderList>(),
             Status = OrderStatus.Unpaid,
         };
+        public static Order TestOrder2 = new()
+        {
+            UserId = 1,
+            Amount = 4,
+            CreationDate = DateTime.Now,
+            OrderId = 1,
+            OrderList = new List<OrderList>(),
+            Status = OrderStatus.Unpaid,
+        };
+        public static Order TestOrder3 = new()
+        {
+            UserId = 1,
+            Amount = 4,
+            CreationDate = DateTime.Now,
+            OrderId = 1,
+            OrderList = new List<OrderList>(),
+            Status = OrderStatus.Unpaid,
+        };
+        public static Order TestOrder4 = new()
+        {
+            UserId = 1,
+            Amount = 4,
+            CreationDate = DateTime.Now,
+            OrderId = 1,
+            OrderList = new List<OrderList>(),
+            Status = OrderStatus.Unpaid,
+        };
         public static Order TestOrderNoProducts1 = new()
         {
             UserId = 1,
@@ -38,6 +65,38 @@ namespace UnitTests.Consts
             {
                 Products.TestProductInfo1
             }
+        };
+        public static OrderInfoDto TestOrderInfo2 = new()
+        {
+            Amount = 4,
+            CreationDate = DateTime.Now,
+            Status = OrderStatus.Unpaid,
+            ProductInfo = new List<ProductInfoDto>
+            {
+                Products.TestProductInfo1
+            }
+        };
+        public static OrderInfoDto TestOrderInfo3 = new()
+        {
+            Amount = 4,
+            CreationDate = DateTime.Now,
+            Status = OrderStatus.Unpaid,
+            ProductInfo = new List<ProductInfoDto>
+            {
+                Products.TestProductInfo2
+            }
+        };
+        public static OrderCreationDto TestOrderCreation1 = new()
+        {
+            Amount = 4,
+            UserId = 1,
+            OrderList = new List<OrderList>()
+        };
+        public static OrderCreationDto TestOrderCreation2 = new()
+        {
+            Amount = 4,
+            UserId = 1,
+            OrderList = new List<OrderList>()
         };
         public static OrderItemsDeletionDto TestOrderDeletionInfo1 = new()
         {
@@ -71,6 +130,12 @@ namespace UnitTests.Consts
         public static OrderList OrderListTest2 = new()
         {
             ProductId = 2,
+            Amount = 2,
+            OrderId = 1
+        };
+        public static OrderList OrderListTest3 = new()
+        {
+            ProductId = 1,
             Amount = 2,
             OrderId = 1
         };

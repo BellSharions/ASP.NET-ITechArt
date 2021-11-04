@@ -184,7 +184,7 @@ namespace UnitTests.ServiceTests
 
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(Products.TestProduct1);
+            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(true);
 
             //Act
             var result = await productService.CreateProductAsync(Products.TestCreation1);
@@ -201,7 +201,7 @@ namespace UnitTests.ServiceTests
             var nullProduct = new Product();
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(nullProduct);
+            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(false);
 
             //Act
             var result = await productService.CreateProductAsync(new ProductCreationDto());
@@ -257,7 +257,7 @@ namespace UnitTests.ServiceTests
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(Products.TestRating1);
+            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(true);
 
             //Act
             var result = await productService.AddRatingAsync(userId, Products.TestRatingCreation1);
@@ -276,7 +276,7 @@ namespace UnitTests.ServiceTests
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(nullRating);
+            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
             var result = await productService.AddRatingAsync(userId, Products.TestRatingCreation1);
@@ -295,7 +295,7 @@ namespace UnitTests.ServiceTests
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(nullRating);
+            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
             var result = await productService.AddRatingAsync(userId, Products.TestRatingCreationOutOfBounds1);
@@ -314,7 +314,7 @@ namespace UnitTests.ServiceTests
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(nullRating);
+            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
             var result = await productService.AddRatingAsync(userId, Products.TestRatingCreationOutOfBounds2);

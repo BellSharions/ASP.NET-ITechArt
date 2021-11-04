@@ -40,13 +40,15 @@ namespace Business.Services
 
         public async Task<ServiceResult> CreateOrderAsync(OrderCreationDto info)
         {
-            if (info == null)
+            if (info.OrderList == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             var order = new Order();
             _mapper.Map(info, order);
 
-            await _orderRepository.CreateAsync(order);
-            return new ServiceResult(ResultType.Success, "Success");
+            var result = await _orderRepository.CreateAsync(order);
+            if(result)
+                return new ServiceResult(ResultType.Success, "Success");
+            return new ServiceResult(ResultType.BadRequest, "Creation was not completed");
         }
 
         public async Task<ServiceResult> DeleteItems(int id, OrderItemsDeletionDto info)

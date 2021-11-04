@@ -127,7 +127,7 @@ namespace Business.Services
                 Rating = info.Rating
             };
             var result = await _ratingRepository.CreateAsync(rating);
-            if (result.Rating != info.Rating)
+            if (!result)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             await _productRepository.RecalculateRating(info.ProductId);
             return new ServiceResult(ResultType.Success, "Success");

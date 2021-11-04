@@ -39,18 +39,18 @@ namespace UnitTests.ServiceTests
         {
             var orderService = new OrderService(orderRepository, mapper);
 
-            A.CallTo(() => orderRepository.GetOrderByIdAsync(1)).Returns(Orders.TestOrder1);
-            Orders.TestOrder1.OrderList.Add(Orders.TestOrderList1);
+            A.CallTo(() => orderRepository.GetOrderByIdAsync(1)).Returns(Orders.TestOrder3);
+            Orders.TestOrder3.OrderList.Add(Orders.TestOrderList2);
 
             //Act
             var result = await orderService.GetOrderInfoByIdAsync(1);
 
             //Assert
-            Assert.Equal(Orders.TestOrderInfo1.Amount, result.Amount);
-            Assert.Equal(Orders.TestOrderInfo1.Status, result.Status);
-            Assert.Equal(Orders.TestOrderInfo1.ProductInfo.Count, result.ProductInfo.Count);
+            Assert.Equal(Orders.TestOrderInfo3.Amount, result.Amount);
+            Assert.Equal(Orders.TestOrderInfo3.Status, result.Status);
+            Assert.Equal(Orders.TestOrderInfo3.ProductInfo.Count, result.ProductInfo.Count);
             for (var i = 0; i < result.ProductInfo.Count; i++)
-                Assert.True(Orders.TestOrderInfo1.ProductInfo[i].Equals(result.ProductInfo[i]));
+                Assert.True(Orders.TestOrderInfo3.ProductInfo[i].Equals(result.ProductInfo[i]));
 
             A.CallTo(() => orderRepository.GetOrderByIdAsync(1)).MustHaveHappenedOnceExactly();
         }
@@ -76,17 +76,17 @@ namespace UnitTests.ServiceTests
             var orderService = new OrderService(orderRepository, mapper);
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => orderRepository.GetOrderByIdAsync(Orders.TestOrder1.OrderId)).Returns(Orders.TestOrder1);
-            A.CallTo(() => orderRepository.UpdateItemAsync(Orders.TestOrder1)).Returns(true);
-            Orders.TestOrder1.OrderList.Add(Orders.TestOrderList1);
+            A.CallTo(() => orderRepository.GetOrderByIdAsync(Orders.TestOrder2.OrderId)).Returns(Orders.TestOrder2);
+            A.CallTo(() => orderRepository.UpdateItemAsync(Orders.TestOrder2)).Returns(true);
+            Orders.TestOrder2.OrderList.Add(Orders.OrderListTest2);
 
             //Act
-            var result = await orderService.ChangeOrderAmountAsync(Orders.TestOrder1.OrderId, Orders.OrderAmountTest2);
+            var result = await orderService.ChangeOrderAmountAsync(Orders.TestOrder2.OrderId, Orders.OrderAmountTest2);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => orderRepository.UpdateItemAsync(Orders.TestOrder1)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => orderRepository.UpdateItemAsync(Orders.TestOrder2)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ChangeOrderAmountAsyncNegative_NoProducts_ReturnServiceResultBadRequest()
@@ -221,6 +221,61 @@ namespace UnitTests.ServiceTests
             Assert.Equal(serviceResult.Type, result.Type);
 
             A.CallTo(() => orderRepository.DeleteItemsAsync(Orders.TestOrder1.OrderId, Orders.TestOrderDeletionInfo1.ProductId)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task CreateOrderAsyncPositive_ReturnServiceResultWithOk()
+        {
+            var orderService = new OrderService(orderRepository, mapper);
+            var serviceResult = new ServiceResult(ResultType.Success, "Success");
+            Orders.TestOrderCreation1.OrderList.Add(Orders.OrderListTest1);
+            Orders.TestOrder1.OrderList.Add(Orders.OrderListTest1);
+            Orders.TestOrder1.CreationDate = DateTime.MinValue;
+            Orders.TestOrder1.OrderId = 0;
+            A.CallTo(() => orderRepository.CreateAsync(A<Order>.Ignored)).Returns(true);
+
+            //Act
+            var result = await orderService.CreateOrderAsync(Orders.TestOrderCreation1);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => orderRepository.CreateAsync(A<Order>.Ignored)).MustHaveHappenedOnceExactly();
+        }
+        [Fact]
+        public async Task CreateOrderAsyncNegative_NoInfo_ReturnServiceResultWithBadRequest()
+        {
+            var orderService = new OrderService(orderRepository, mapper);
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Information");
+            Orders.TestOrderCreation1.OrderList.Add(Orders.OrderListTest1);
+            Orders.TestOrder1.OrderList.Add(Orders.OrderListTest1);
+            Orders.TestOrder1.CreationDate = DateTime.MinValue;
+            Orders.TestOrder1.OrderId = 0;
+            A.CallTo(() => orderRepository.CreateAsync(A<Order>.Ignored)).Returns(true);
+
+            //Act
+            var result = await orderService.CreateOrderAsync(new OrderCreationDto());
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => orderRepository.CreateAsync(A<Order>.Ignored)).MustNotHaveHappened();
+        }
+        [Fact]
+        public async Task CreateOrderAsyncNegative_ResultInNull_ReturnServiceResultWithBadRequest()
+        {
+            var orderService = new OrderService(orderRepository, mapper);
+            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Information");
+            Orders.TestOrderCreation2.OrderList.Add(Orders.OrderListTest3);
+            Orders.TestOrder4.OrderList.Add(Orders.OrderListTest3);
+            A.CallTo(() => orderRepository.CreateAsync(Orders.TestOrder4)).Returns(true);
+
+            //Act
+            var result = await orderService.CreateOrderAsync(Orders.TestOrderCreation2);
+
+            //Assert
+            Assert.Equal(serviceResult.Type, result.Type);
+
+            A.CallTo(() => orderRepository.CreateAsync(Orders.TestOrder4)).MustNotHaveHappened();
         }
     }
 }

@@ -20,15 +20,17 @@ namespace DAL.Repository
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<T>();
         }
-        public async Task<T> CreateAsync(T item)
+        public async Task<bool> CreateAsync(T item)
         {
             try
             {
                 await _dbSet.AddAsync(item);
 
-                await _dbContext.SaveChangesAsync();
+                if (await _dbContext.SaveChangesAsync() == 0)
+                    return false;
 
                 _dbContext.Entry(item).State = EntityState.Detached;
+                return true;
             }
             catch (Exception e)
             {
@@ -36,7 +38,6 @@ namespace DAL.Repository
                 throw new Exception($"Could not create item in database. Error: {e.Message}");
             }
 
-            return item;
         }
 
         public async Task<List<T>> AddRangeAsync(IEnumerable<T> items)
