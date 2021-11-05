@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASP-NET", "ASP-NET\ASP-NET.csproj", "{AF899A09-4815-4C70-81BE-F07A711BA5DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1028742B-B2F4-4A24-B4D1-6E628845E566} = {1028742B-B2F4-4A24-B4D1-6E628845E566}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{F4D1A24C-BBFB-4FB7-BABE-1AF65A083257}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Business", "Business\Business.csproj", "{1028742B-B2F4-4A24-B4D1-6E628845E566}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F4D1A24C-BBFB-4FB7-BABE-1AF65A083257} = {F4D1A24C-BBFB-4FB7-BABE-1AF65A083257}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{68B7CBC7-4CF8-4115-A341-16D2C977CC33}"
 	ProjectSection(SolutionItems) = preProject

@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System;
 using DAL;
+using DAL.Entities;
+using DAL.Entities.Roles;
+using Business;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace ASP_NET
 {
@@ -22,13 +25,34 @@ namespace ASP_NET
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddAutoMapper();
+            services.AddResponseCompression(options => 
+            { 
+                options.EnableForHttps = true; options.Providers.Add<GzipCompressionProvider>(); 
+            }) ;
+            services.Configure<GzipCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Optimal;
+            });
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            });
+
+            services.AddMemoryCache();
+
+            services.Configure<SmtpOptions>(
+            Configuration.GetSection(nameof(SmtpOptions)));
+             services.Configure<CloudinaryOptions>(
+            Configuration.GetSection(nameof(CloudinaryOptions)));
+
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
@@ -41,25 +65,37 @@ namespace ASP_NET
                         Url = new Uri("https://github.com/BellSharions"),
                     }
                 });
+                
             });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
-                    x => x.MigrationsAssembly("DAL"))); //Use "DAL" instead, to ensure correct migration assembly
+                    x => x.MigrationsAssembly("DAL")));
+
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<Role>()
+                .AddRoleManager<RoleManager>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            });
+
+            Services.IServiceCollectionExtensions.RegisterServices(services);
+
             services.AddHealthChecks()
-                // Add a health check for a SQL Server database
                 .AddCheck(
                     "OrderingDB-check",
                     new SqlConnectionHealthCheck(Configuration.GetConnectionString("DefaultConnection")),
                     HealthStatus.Unhealthy,
                     new string[] { "orderingdb" });
-            services.AddRazorPages();
+
+            services.AddRazorPages().AddNewtonsoftJson();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -72,19 +108,19 @@ namespace ASP_NET
                app.UseExceptionHandler("/Error");
                app.UseHsts();
             }
+            app.UseResponseCompression();
+            app.UseSerilogRequestLogging();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET API");
-            });
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            
             app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
@@ -92,8 +128,9 @@ namespace ASP_NET
                 endpoints.MapHealthChecks("/hc");
                 endpoints.MapControllerRoute(
                         name: "default",
-                        pattern: "{controller=Home}/{action=GetInfo}");
+                        pattern: "{controller=Home}/{action=Index}");
             });
         }
+
     }
 }
