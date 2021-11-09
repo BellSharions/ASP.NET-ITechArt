@@ -1,14 +1,8 @@
-using System;
 using Xunit;
 using FakeItEasy;
-using Business.Interfaces;
 using System.Threading.Tasks;
-using Business.Services;
-using AutoMapper;
-using Business;
 using Microsoft.AspNetCore.Identity;
 using DAL.Entities;
-using DAL.Entities.Roles;
 using UnitTests.Consts;
 using DAL.Entities.Models;
 using DAL.Enums;

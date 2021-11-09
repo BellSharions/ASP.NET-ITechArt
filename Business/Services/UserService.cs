@@ -6,7 +6,6 @@ using DAL.Entities;
 using DAL.Entities.Models;
 using DAL.Enums;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
