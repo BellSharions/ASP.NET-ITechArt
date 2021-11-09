@@ -23,11 +23,11 @@ namespace Business.Services
 
         public async Task<ServiceResult> ChangeOrderAmountAsync(int OrderId, OrderAmountChangeDto info)
         {
-            if (info.UserId == 0 || info.ProductId == 0)
+            if (info == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
 
             var foundOrder = await _orderRepository.GetOrderByIdAsync(OrderId);
-            if (foundOrder.OrderId == 0 || foundOrder.Status == OrderStatus.Paid)
+            if (foundOrder == null)
                 return new ServiceResult(ResultType.BadRequest, "No order was found");
 
             if(foundOrder.OrderList.FirstOrDefault(u => u.ProductId == info.ProductId) == null)
@@ -62,7 +62,7 @@ namespace Business.Services
         public async Task<OrderInfoDto> GetOrderInfoByIdAsync(int id)
         {
             var data = await _orderRepository.GetOrderByIdAsync(id);
-            if (data.OrderId == 0)
+            if (data == null)
                 return null;
             var result = _mapper.Map<Order, OrderInfoDto>(data);
             result.ProductInfo = _mapper.Map<List<Product>, List<ProductInfoDto>>(data.OrderList.Select(t => t.Product).ToList());
@@ -74,7 +74,7 @@ namespace Business.Services
         public async Task<ServiceResult> BuyAsync(int orderId, int userId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            if (userId != order.UserId)
+            if (order != null || userId != order.UserId)
                 return new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
             if(await _orderRepository.BuyAsync(orderId))

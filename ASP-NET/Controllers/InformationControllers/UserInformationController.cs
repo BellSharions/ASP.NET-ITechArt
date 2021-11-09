@@ -44,7 +44,7 @@ namespace ASP_NET.Controllers.InformationControllers
             if (userId == "")
                 return BadRequest();
             var result = await _userService.UpdateUserInfoAsync(int.Parse(userId), info);
-            if(result.Id == 0)
+            if(result == null)
                 return BadRequest();
             _memoryCache.Remove(int.Parse(_iHttpContextAccessor.HttpContext.User.Claims.First().Value));
             return Ok();

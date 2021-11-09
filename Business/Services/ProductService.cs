@@ -32,7 +32,7 @@ namespace Business.Services
         public async Task<ProductInfoDto> GetProductInfoByIdAsync(int id)
         {
             var result = await _productRepository.GetProductByIdAsync(id);
-            if(result.Id == 0)
+            if(result == null)
                 return null;
             var info = new ProductInfoDto
             {

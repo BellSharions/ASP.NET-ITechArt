@@ -1,7 +1,13 @@
-﻿using Business.DTO;
+﻿using AutoMapper;
+using Business;
+using Business.DTO;
 using Business.Enums;
+using Business.Interfaces;
+using Business.Services;
 using DAL.Entities;
+using DAL.Entities.Models;
 using DAL.Enums;
+using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -12,9 +18,9 @@ using System.Threading.Tasks;
 
 namespace UnitTests.Consts
 {
-    public static class Products
+    public class ProductServiceFixtures
     {
-        public static readonly IFormFile TestFormFile = new FormFile(
+        public readonly IFormFile TestFormFile = new FormFile(
                 new MemoryStream(Encoding.UTF8.GetBytes("This is a test")),
                 0,
                 Encoding.UTF8.GetBytes("This is a test").Length,
@@ -22,9 +28,38 @@ namespace UnitTests.Consts
                 "Picture.png"
             );
 
-        public static readonly string TestLink = @"";
+        public readonly string TestLink = @"";
 
-        public static Product TestProduct1 = new()
+        public Product TestProduct1 { get; set; }
+        public Product TestProduct2 { get; set; }
+        public Product TestProduct3 { get; set; }
+        public List<Product> TestProductList1 { get; set; }
+        public ProductInfoDto TestProductInfo1 { get; set; }
+        public ProductInfoDto TestProductInfo2 { get; set; }
+        public ListProductPageDto TestListPage1 { get; set; }
+        public TopPlatformDto TopTest1 { get; set; }
+        public TopPlatformDto TopTest2 { get; set; }
+        public TopPlatformDto TopTest3 { get; set; }
+        public ProductPageDto TestPage1 { get; set; }
+        public ProductCreationDto TestCreation1 { get; set; }
+        public ProductRating TestRating1 { get; set; }
+        public RatingCreationDto TestRatingCreation1 { get; set; }
+        public RatingCreationDto TestRatingCreationOutOfBoundsLessThanZero { get; set; }
+        public RatingCreationDto TestRatingCreationOutOfBoundsMoreThanHundred { get; set; }
+        public List<ProductInfoDto> TestSearchList1 { get; set; }
+        public List<Product> TestList1 { get; set; }
+        public ProductChangeDto TestChange1 { get; set; }
+        public IProductRepository productRepository { get; set; }
+        public ICloudinaryService cloudinaryService { get; set; }
+        public IRatingRepository ratingRepository { get; set; }
+        public IMapper mapper { get; set; }
+        public ProductService productService { get; set; }
+        public ServiceResult serviceResultOk { get; set; }
+        public ServiceResult serviceResultBadRequest { get; set; }
+        public ServiceResult serviceResultCreated { get; set; }
+
+        public ProductServiceFixtures() {
+        TestProduct1 = new()
         {
             Id = 1,
             Name = "Genshin Impact",
@@ -37,8 +72,7 @@ namespace UnitTests.Consts
             Price = 1,
             Count = 150
         };
-
-        public static Product TestProduct2 = new()
+        TestProduct2 = new()
         {
             Id = 2,
             Name = "Ultrakill",
@@ -51,9 +85,9 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
-        public static Product TestProduct3 = new()
+        TestProduct3 = new()
         {
-            Id = 2,
+            Id = 3,
             Name = "Ultrakill",
             Platform = AvailablePlatforms.PC,
             TotalRating = 99,
@@ -64,14 +98,13 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
-        public static List<Product> TestProductList1 = new()
+        TestProductList1 = new()
         {
             TestProduct1,
             TestProduct2,
             TestProduct3
         };
-
-        public static ProductInfoDto TestProductInfo1 = new()
+        TestProductInfo1 = new()
         {
             Name = "Genshin Impact",
             Platform = "PC",
@@ -83,7 +116,7 @@ namespace UnitTests.Consts
             Price = 1,
             Count = 150
         };
-        public static ProductInfoDto TestProductInfo2 = new()
+        TestProductInfo2 = new()
         {
             Name = "Ultrakill",
             Platform = "PC",
@@ -95,7 +128,7 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
-        public static ListProductPageDto TestListPage1 = new()
+        TestListPage1 = new()
         {
             PageNumber = 1,
             PageSize = 10,
@@ -104,30 +137,29 @@ namespace UnitTests.Consts
             Genre = AvailableGenres.Sandbox,
             AgeRating = AgeRating.PEGI16
         };
-
-        public static TopPlatformDto TopTest1 = new()
+        TopTest1 = new()
         {
             Platform = "PC",
             Count = 5
         };
-        public static TopPlatformDto TopTest2 = new()
+        TopTest2 = new()
         {
             Platform = "XBOX",
             Count = 3
         };
-        public static TopPlatformDto TopTest3 = new()
+        TopTest3 = new()
         {
             Platform = "PlayStation",
             Count = 1
         };
-        public static ProductPageDto TestPage1 = new()
+        TestPage1 = new()
         {
             PageNumber = 1,
             PageSize = 10,
             Data = new List<Product> { TestProduct1, TestProduct2 },
             ProductAmount = 2
         };
-        public static ProductCreationDto TestCreation1 = new()
+        TestCreation1 = new()
         {
             Name = "Ultrakill",
             Platform = AvailablePlatforms.PC,
@@ -139,36 +171,36 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
-        public static ProductRating TestRating1 = new()
+        TestRating1 = new()
         {
             UserId = 1,
             ProductId = 1,
             Rating = 90
         };
-        public static RatingCreationDto TestRatingCreation1 = new()
+        TestRatingCreation1 = new()
         {
             ProductId = 1,
             Rating = 90
         };
-        public static RatingCreationDto TestRatingCreationOutOfBounds1 = new()
+        TestRatingCreationOutOfBoundsLessThanZero = new()
         {
             ProductId = 1,
             Rating = -5
         };
-        public static RatingCreationDto TestRatingCreationOutOfBounds2 = new()
+        TestRatingCreationOutOfBoundsMoreThanHundred = new()
         {
             ProductId = 1,
             Rating = 110
         };
-        public static List<ProductInfoDto> TestSearchList1 = new()
+        TestSearchList1 = new()
         {
             TestProductInfo1
         };
-        public static List<Product> TestList1 = new()
+        TestList1 = new()
         {
             TestProduct1
         };
-        public static ProductChangeDto TestChange1 = new()
+        TestChange1 = new()
         {
             Name = "Ultrakill",
             Platform = AvailablePlatforms.PC,
@@ -180,5 +212,14 @@ namespace UnitTests.Consts
             Price = 99,
             Count = 99
         };
+        productRepository = A.Fake<IProductRepository>();
+        cloudinaryService = A.Fake<ICloudinaryService>();
+        ratingRepository = A.Fake<IRatingRepository>();
+        mapper = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>()).CreateMapper();
+        productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
+        serviceResultOk = new ServiceResult(ResultType.Success, "Success");
+        serviceResultBadRequest = new ServiceResult(ResultType.BadRequest, "Invalid Information");
+        serviceResultCreated = new ServiceResult(ResultType.Created, "Created");
+        }
     }
 }

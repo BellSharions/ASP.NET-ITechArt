@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using Business;
-using Business.DTO;
-using Business.Enums;
-using Business.Interfaces;
-using Business.Services;
+﻿using Business.DTO;
 using DAL.Entities;
 using DAL.Entities.Models;
 using DAL.Enums;
@@ -11,52 +6,53 @@ using FakeItEasy;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Net;
 using System.Threading.Tasks;
 using UnitTests.Consts;
 using Xunit;
 
 namespace UnitTests.ServiceTests
 {
-    public class ProductServiceTest
+    public class ProductServiceTest : IClassFixture<ProductServiceFixtures>
     {
-        public IProductRepository productRepository = A.Fake<IProductRepository>();
-        public ICloudinaryService cloudinaryService = A.Fake<ICloudinaryService>();
-        public IRatingRepository ratingRepository = A.Fake<IRatingRepository>();
-        public IMapper mapper = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>()).CreateMapper();
+        ProductServiceFixtures productFixture;
+        public ProductServiceTest(ProductServiceFixtures fixture)
+        {
+            this.productFixture = fixture;
+            Fake.ClearRecordedCalls(productFixture.cloudinaryService);
+            Fake.ClearRecordedCalls(productFixture.productRepository);
+            Fake.ClearRecordedCalls(productFixture.ratingRepository);
+        }
         [Fact]
         public async Task GetTopPlatforms_ReturnResultWithListOfTopPlatformDto()
         {
             var count = 3;
             var platforms = new List<TopPlatformDto>();
-            platforms.Add(Products.TopTest1);
-            platforms.Add(Products.TopTest2);
-            platforms.Add(Products.TopTest3);
+            platforms.Add(productFixture.TopTest1);
+            platforms.Add(productFixture.TopTest2);
+            platforms.Add(productFixture.TopTest3);
 
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            A.CallTo(() => productRepository.GetTopPlatformsAsync(count)).Returns(platforms);
+            A.CallTo(() => productFixture.productRepository.GetTopPlatformsAsync(count)).Returns(platforms);
 
             //Act
-            var result = await productService.GetTopPlatformsAsync(count);
+            var result = await productFixture.productService.GetTopPlatformsAsync(count);
 
             //Assert
             Assert.Equal(platforms, result);
             Assert.Equal(platforms.Count, result.Count);
 
-            A.CallTo(() => productRepository.GetTopPlatformsAsync(count)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.GetTopPlatformsAsync(count)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task GetProductByIdPositive_ReturnProduct()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            var product = Products.TestProduct1;
+            var product = productFixture.TestProduct1;
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
 
             //Act
-            var result = await productService.GetProductByIdAsync(product.Id);
+            var result = await productFixture.productService.GetProductByIdAsync(product.Id);
 
             //Assert
             Assert.Equal(product.Id, result.Id);
@@ -71,19 +67,18 @@ namespace UnitTests.ServiceTests
             Assert.Equal(product.Genre, result.Genre);
             Assert.Equal(product.Background, result.Background);
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task GetProductInfoByIdAsyncPositive_ReturnProductInfoDto()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            var product = Products.TestProduct1;
+            var product = productFixture.TestProduct1;
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
 
             //Act
-            var result = await productService.GetProductInfoByIdAsync(product.Id);
+            var result = await productFixture.productService.GetProductInfoByIdAsync(product.Id);
 
             //Assert
             Assert.Equal(product.TotalRating, result.TotalRating);
@@ -96,42 +91,40 @@ namespace UnitTests.ServiceTests
             Assert.Equal(product.Genre.ToString(), result.Genre);
             Assert.Equal(product.Background, result.Background);
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task GetProductInfoByIdAsyncNegative_ReturnNull()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            var product = new Product();
+            Product product = null;
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(1)).Returns(product);
 
             //Act
-            var result = await productService.GetProductInfoByIdAsync(product.Id);
+            var result = await productFixture.productService.GetProductInfoByIdAsync(1);
 
             //Assert
             Assert.Null(result);
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(1)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ListProductAsyncPositive_ReturnListProductPageDto()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            var list = Products.TestListPage1;
+            var list = productFixture.TestListPage1;
             var data = new ProductListFilteredDto();
             data.Products = new List<Product>();
-            data.Products.Add(Products.TestProduct1);
-            data.Products.Add(Products.TestProduct2);
+            data.Products.Add(productFixture.TestProduct1);
+            data.Products.Add(productFixture.TestProduct2);
             data.Total = 2;
-            var result = Products.TestPage1;
+            var result = productFixture.TestPage1;
 
-            A.CallTo(() => productRepository.ListProductPageAsync(list)).Returns(data);
+            A.CallTo(() => productFixture.productRepository.ListProductPageAsync(list)).Returns(data);
 
             //Act
-            var totalList = await productService.ListProductAsync(list);
+            var totalList = await productFixture.productService.ListProductAsync(list);
 
             //Assert
             Assert.Equal(result.Data, totalList.Data);
@@ -139,203 +132,191 @@ namespace UnitTests.ServiceTests
             Assert.Equal(result.PageSize, totalList.PageSize);
             Assert.Equal(result.ProductAmount, totalList.ProductAmount);
 
-            A.CallTo(() => productRepository.ListProductPageAsync(list)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.ListProductPageAsync(list)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task DeleteProductAsyncPositive_ReturnServiceResultWithOK()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int id = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => productRepository.DeleteProductAsync(id)).Returns(true);
+            A.CallTo(() => productFixture.productRepository.DeleteProductAsync(id)).Returns(true);
 
             //Act
-            var result = await productService.DeleteProductAsync(id);
+            var result = await productFixture.productService.DeleteProductAsync(id);
 
             //Assert
             Assert.Equal(ResultType.Success, result.Type);
 
-            A.CallTo(() => productRepository.DeleteProductAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.DeleteProductAsync(id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task DeleteProductAsyncNegative_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int id = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
-            A.CallTo(() => productRepository.DeleteProductAsync(id)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.DeleteProductAsync(id)).Returns(false);
 
             //Act
-            var result = await productService.DeleteProductAsync(id);
+            var result = await productFixture.productService.DeleteProductAsync(id);
 
             //Assert
             Assert.Equal(ResultType.BadRequest, result.Type);
 
-            A.CallTo(() => productRepository.DeleteProductAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.DeleteProductAsync(id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task CreateProductAsyncPositive_ReturnServiceResultWithOk()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(true);
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).Returns(true);
 
             //Act
-            var result = await productService.CreateProductAsync(Products.TestCreation1);
+            var result = await productFixture.productService.CreateProductAsync(productFixture.TestCreation1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).MustHaveHappenedOnceOrLess();
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).MustHaveHappenedOnceOrLess();
         }
         [Fact]
         public async Task CreateProductAsyncNegative_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
             var nullProduct = new Product();
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).Returns(false);
 
             //Act
-            var result = await productService.CreateProductAsync(new ProductCreationDto());
+            var result = await productFixture.productService.CreateProductAsync(new ProductCreationDto());
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productRepository.CreateAsync(Products.TestProduct1)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).MustNotHaveHappened();
         }
         [Fact]
         public async Task DeleteRatingAsyncPositive_ReturnServiceResultWithOK()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int productId = 1;
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).Returns(true);
+            A.CallTo(() => productFixture.ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).Returns(true);
 
             //Act
-            var result = await productService.DeleteRatingAsync(userId, productId);
+            var result = await productFixture.productService.DeleteRatingAsync(userId, productId);
 
             //Assert
             Assert.Equal(ResultType.Success, result.Type);
 
-            A.CallTo(() => ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task DeleteRatingAsyncNegative_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int productId = 1;
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
 
-            A.CallTo(() => ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).Returns(false);
+            A.CallTo(() => productFixture.ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).Returns(false);
 
             //Act
-            var result = await productService.DeleteRatingAsync(userId, productId);
+            var result = await productFixture.productService.DeleteRatingAsync(userId, productId);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.ratingRepository.DeleteAsync(A<Expression<Func<ProductRating, bool>>>.Ignored)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task AddRatingAsyncPositive_ReturnServiceResultWithOk()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(true);
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(true);
 
             //Act
-            var result = await productService.AddRatingAsync(userId, Products.TestRatingCreation1);
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreation1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task AddRatingAsyncNegative_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
-            var result = await productService.AddRatingAsync(userId, Products.TestRatingCreation1);
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreation1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task AddRatingAsyncNegative_RatingLessThanZero_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
-            var result = await productService.AddRatingAsync(userId, Products.TestRatingCreationOutOfBounds1);
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreationOutOfBoundsLessThanZero);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task AddRatingAsyncNegative_RatingMoreThanHundred_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Success");
             var nullRating = new ProductRating();
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
-            var result = await productService.AddRatingAsync(userId, Products.TestRatingCreationOutOfBounds2);
-
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreationOutOfBoundsMoreThanHundred);
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task SearchProductByNameAsyncPositive_ReturnSearchResult()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
-            var searchList = Products.TestSearchList1;
+            var searchList = productFixture.TestSearchList1;
 
 
-            A.CallTo(() => productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).Returns(Products.TestList1);
+            A.CallTo(() => productFixture.productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).Returns(productFixture.TestList1);
 
             //Act
-            var result = await productService.SearchProductByNameAsync("Genshin Impact", 1, 0);
+            var result = await productFixture.productService.SearchProductByNameAsync("Genshin Impact", 1, 0);
 
             //Assert
             Assert.Equal(searchList.Count, result.Count);
@@ -353,110 +334,104 @@ namespace UnitTests.ServiceTests
                 Assert.Equal(searchList[i].Logo, result[i].Logo);
             }
 
-            A.CallTo(() => productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => productFixture.productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ChangeProductInfoAsyncPositive_ReturnServiceResultWithOk()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
             var nullRating = new ProductRating();
-            var product = Products.TestProduct1;
+            var product = productFixture.TestProduct1;
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
-            A.CallTo(() => cloudinaryService.DeleteImage(Products.TestProduct3.Logo)).Returns(serviceResult);
-            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(true);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.TestProduct3.Logo)).Returns(serviceResult);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(true);
 
             //Act
-            var result = await productService.ChangeProductInfoAsync(userId, Products.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task ChangeProductInfoAsyncNegative_UpdateHaulted_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullRating = new ProductRating();
-            var product = Products.TestProduct1;
+            var product = productFixture.TestProduct1;
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(product.Id)).Returns(product);
-            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
 
             //Act
-            var result = await productService.ChangeProductInfoAsync(userId, Products.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task ChangeProductInfoAsyncNegative_InfoIsNull_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullRating = new ProductRating();
             var nullProduct = new Product();
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
-            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
 
             //Act
-            var result = await productService.ChangeProductInfoAsync(userId, null);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, null);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task ChangeProductInfoAsyncNegative_InvalidId_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
 
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullProduct = new Product();
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
-            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
 
             //Act
-            var result = await productService.ChangeProductInfoAsync(userId, Products.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
         }
         [Fact]
         public async Task ChangeProductInfoAsyncNegative_NullLogo_ReturnServiceResultWithBadRequest()
         {
-            var productService = new ProductService(productRepository, ratingRepository, cloudinaryService, mapper);
-
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullProduct = new Product();
 
-            A.CallTo(() => productRepository.GetProductByIdAsync(Products.TestProduct3.Id)).Returns(Products.TestProduct3);
-            A.CallTo(() => productRepository.UpdateItemAsync(Products.TestProduct3)).Returns(false);
-            A.CallTo(() => cloudinaryService.DeleteImage(Products.TestProduct3.Logo)).Returns(serviceResult);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(productFixture.TestProduct3.Id)).Returns(productFixture.TestProduct3);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct3)).Returns(false);
+            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.TestProduct3.Logo)).Returns(serviceResult);
             //Act
-            var result = await productService.ChangeProductInfoAsync(2, Products.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(2, productFixture.TestChange1);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(A<Product>.Ignored)).MustNotHaveHappened();
         }
     }
 }

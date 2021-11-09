@@ -41,9 +41,9 @@ namespace Business.Services
         public async Task<ServiceResult> ConfirmEmailAsync(int id, string token)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            var test = await _userManager.ConfirmEmailAsync(user, token);
-            if (user.Id == 0 &&
-                !test.Succeeded)
+            var confirmationResult = await _userManager.ConfirmEmailAsync(user, token);
+            if (user == null &&
+                !confirmationResult.Succeeded)
                 return new ServiceResult(ResultType.BadRequest, "Email was not confirmed");
             return new ServiceResult(ResultType.Success, "Success");
         }
@@ -62,7 +62,7 @@ namespace Business.Services
             var foundUser = await _userManager.FindByEmailAsync(info.Email);
             if (!Regex.IsMatch(info.Email, emailRegex) ||
                 !Regex.IsMatch(info.Password, passwordRegex) ||
-                foundUser.Id != 0)
+                foundUser != null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             User user = new User() { 
                 Email = info.Email, 
@@ -82,7 +82,7 @@ namespace Business.Services
         {
             var foundUser = await _userManager.FindByEmailAsync(info.Email);
             var passwordCheck = await _userManager.CheckPasswordAsync(foundUser, info.Password);
-            if (foundUser.Id == 0 ||
+            if (foundUser == null ||
                 !Regex.IsMatch(info.Email, emailRegex) ||
                 !Regex.IsMatch(info.Password, passwordRegex) ||
                 !foundUser.EmailConfirmed ||

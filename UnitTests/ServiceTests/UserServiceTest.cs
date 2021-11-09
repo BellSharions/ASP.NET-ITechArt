@@ -16,335 +16,303 @@ using Business.DTO;
 
 namespace UnitTests
 {
-    public class UserServiceTest
+    public class UserServiceTest : IClassFixture<UserServiceFixtures>
     {
-        public IUserRepository userRepository = A.Fake<IUserRepository>();
-        public ISmtpService smtpService = A.Fake<ISmtpService>();
-        public IMapper mapper = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>()).CreateMapper();
-        public SignInManager<User> signInManager = A.Fake<SignInManager<User>>();
-        public UserManager<User> userManager = A.Fake<UserManager<User>>();
-        public RoleManager<Role> roleManager = A.Fake<RoleManager<Role>>();
+        UserServiceFixtures userFixture;
+        public UserServiceTest(UserServiceFixtures fixture)
+        {
+            this.userFixture = fixture;
+            Fake.ClearRecordedCalls(userFixture.roleManager);
+            Fake.ClearRecordedCalls(userFixture.signInManager);
+            Fake.ClearRecordedCalls(userFixture.userRepository);
+            Fake.ClearRecordedCalls(userFixture.smtpService);
+            Fake.ClearRecordedCalls(userFixture.userManager);
+        }
         [Fact]
         public async Task FindUserByIdPositive_ReturnUser()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
+            var user = userFixture.UserTest1;
 
-            var user = Users.UserTest1;
-
-            A.CallTo(() => userRepository.GetUser(user.Id)).Returns(user);
+            A.CallTo(() => userFixture.userRepository.GetUser(user.Id)).Returns(user);
 
             //Act
-            var result = await userService.FindUserByIdAsync(user.Id);
+            var result = await userFixture.userService.FindUserByIdAsync(user.Id);
 
             //Assert
             Assert.True(result.Equals(user));
 
-            A.CallTo(() => userRepository.GetUser(user.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userRepository.GetUser(user.Id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task FindUserInfoByIdPositive_ReturnUser()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
+            var user = userFixture.UserTest2;
 
-            var user = Users.UserTest2;
-
-            A.CallTo(() => userRepository.GetUser(user.Id)).Returns(user);
+            A.CallTo(() => userFixture.userRepository.GetUser(user.Id)).Returns(user);
 
             //Act
-            var result = await userService.FindUserInfoByIdAsync(user.Id);
+            var result = await userFixture.userService.FindUserInfoByIdAsync(user.Id);
 
             //Assert
-            Assert.True(result.Equals(Users.UserInfoTest1));
+            Assert.True(result.Equals(userFixture.UserInfoTest1));
 
-            A.CallTo(() => userRepository.GetUser(user.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userRepository.GetUser(user.Id)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ChangePasswordAsyncPositive_ReturnServiceResultWithCreated()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.Created, "Password was updated");
-            var user = Users.UserTest2;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userRepository.UpdatePasswordAsync(Users.UserPasswordTest1)).Returns(true);
+            A.CallTo(() => userFixture.userRepository.UpdatePasswordAsync(userFixture.UserPasswordTest1)).Returns(true);
 
             //Act
-            var result = await userService.ChangePasswordAsync(Users.UserPasswordTest1);
+            var result = await userFixture.userService.ChangePasswordAsync(userFixture.UserPasswordTest1);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultCreated.Type, result.Type);
 
-            A.CallTo(() => userRepository.UpdatePasswordAsync(Users.UserPasswordTest1)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userRepository.UpdatePasswordAsync(userFixture.UserPasswordTest1)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ChangePasswordAsyncNegative_ReturnServiceResultWithBadRequest()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Password was not updated");
-            var user = Users.UserTest2;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userRepository.UpdatePasswordAsync(Users.UserPasswordTest1)).Returns(true);
+            A.CallTo(() => userFixture.userRepository.UpdatePasswordAsync(userFixture.UserPasswordTest1)).Returns(true);
 
             //Act
-            var result = await userService.ChangePasswordAsync(new ChangePasswordUserDto());
+            var result = await userFixture.userService.ChangePasswordAsync(new ChangePasswordUserDto());
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userRepository.UpdatePasswordAsync(Users.UserPasswordTest1)).MustNotHaveHappened();
+            A.CallTo(() => userFixture.userRepository.UpdatePasswordAsync(userFixture.UserPasswordTest1)).MustNotHaveHappened();
         }
         [Fact]
         public async Task SigninAsyncPositive_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(user);
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(true);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(true);
 
             //Act
-            var result = await userService.SigninAsync(Users.UserCreationTest1);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest1);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "12345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "12345678Bb#")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task SigninAsyncNegative_NoUser_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var nullUser = new User();
-            var user = Users.UserTest4;
+            User nullUser = null;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(nullUser);
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(false);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(nullUser);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(false);
 
             //Act
-            var result = await userService.SigninAsync(Users.UserCreationTest1);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest1);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.CheckPasswordAsync(nullUser, "12345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(nullUser, "12345678Bb#")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task SigninAsyncNegative_WrongPassword_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(user);
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "13345678Bb#")).Returns(false);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "13345678Bb#")).Returns(false);
 
             //Act
-            var result = await userService.SigninAsync(Users.UserCreationTest2);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest2);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "13345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "13345678Bb#")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task SigninAsyncNegative_WrongEmail_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email + "m")).Returns(user);
-            A.CallTo(() => userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).Returns(false);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email + "m")).Returns(user);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).Returns(false);
 
             //Act
-            var result = await userService.SigninAsync(Users.UserCreationTest2);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest2);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email + "m")).MustNotHaveHappened();
-            A.CallTo(() => userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email + "m")).MustNotHaveHappened();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task SigninAsyncNegative_EmailConfirmedIsFalse_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest5;
+            var user = userFixture.UserTest2;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(user);
-            A.CallTo(() => userManager.CheckPasswordAsync(user, "13345678Bb#")).Returns(true);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "13345678Bb#")).Returns(true);
 
             //Act
-            var result = await userService.SigninAsync(Users.UserCreationTest2);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest2);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(A<User>.Ignored, "13345678Bb#")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task RegisterAsyncPositive_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var nullUser = new User();
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(nullUser);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(userFixture.NullUser);
 
             //Act
-            var result = await userService.RegisterAsync(Users.UserCreationTest1);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest1);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task RegisterAsyncNegative_FoundUser_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(user);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
 
             //Act
-            var result = await userService.RegisterAsync(Users.UserCreationTest1);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest1);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task RegisterAsyncNegative_WrongPassword_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).Returns(user);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
 
             //Act
-            var result = await userService.RegisterAsync(Users.UserCreationTest4);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest4);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task RegisterAsyncNegative_WrongEmail_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid information");
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email + "m")).Returns(user);
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email + "m")).Returns(user);
 
             //Act
-            var result = await userService.RegisterAsync(Users.UserCreationTest3);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest2);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByEmailAsync(user.Email + "m")).MustNotHaveHappened();
+            A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email + "m")).MustNotHaveHappened();
         }
         [Fact]
         public async Task ConfirmEmailAsyncPositive_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var nullUser = new User();
-            var user = Users.UserTest4;
+            var user = userFixture.UserTest1;
             var token = "testToken";
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
 
             //Act
-            var result = await userService.ConfirmEmailAsync(user.Id, token);
+            var result = await userFixture.userService.ConfirmEmailAsync(user.Id, token);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ConfirmEmailAsyncNegative_NoUser_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.BadRequest, "Email was not confirmed");
-            var nullUser = new User();
-            var user = Users.UserTest4;
+            var nullUser = userFixture.NullUser;
+            var user = userFixture.UserTest1;
             var token = "testToken";
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).Returns(nullUser);
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
-            A.CallTo(() => userManager.ConfirmEmailAsync(nullUser, token)).Returns(IdentityResult.Failed());
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).Returns(nullUser);
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(nullUser, token)).Returns(IdentityResult.Failed());
 
             //Act
-            var result = await userService.ConfirmEmailAsync(user.Id, token);
+            var result = await userFixture.userService.ConfirmEmailAsync(user.Id, token);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).MustNotHaveHappened();
-            A.CallTo(() => userManager.ConfirmEmailAsync(nullUser, token)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).MustNotHaveHappened();
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(nullUser, token)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task ConfirmEmailAsyncNegative_WrongToken_ReturnServiceResultWithOk()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var nullUser = new User();
-            var user = Users.UserTest4;
+            var nullUser = userFixture.NullUser;
+            var user = userFixture.UserTest1;
             var token = "testToken";
             var wrongToken = "Token";
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, wrongToken)).Returns(IdentityResult.Failed());
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).Returns(IdentityResult.Success);
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, wrongToken)).Returns(IdentityResult.Failed());
 
             //Act
-            var result = await userService.ConfirmEmailAsync(user.Id, wrongToken);
+            var result = await userFixture.userService.ConfirmEmailAsync(user.Id, wrongToken);
 
             //Assert
-            Assert.Equal(serviceResult.Type, result.Type);
+            Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, token)).MustNotHaveHappened();
-            A.CallTo(() => userManager.ConfirmEmailAsync(user, wrongToken)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, token)).MustNotHaveHappened();
+            A.CallTo(() => userFixture.userManager.ConfirmEmailAsync(user, wrongToken)).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task UpdateUserInfoAsyncPositive_ReturnServiceResultWithUser()
         {
-            var userService = new UserService(userManager, mapper, signInManager, userRepository, smtpService);
-            var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var nullUser = new User();
-            var user = Users.UserTest5;
-            var newUser = Users.UserTest6;
+            var user = userFixture.UserTest1;
+            var newUser = userFixture.UserTest6;
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
-            A.CallTo(() => userRepository.UpdateUserInfoAsync(user)).Returns(newUser);
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).Returns(user);
+            A.CallTo(() => userFixture.userRepository.UpdateUserInfoAsync(user)).Returns(newUser);
 
             //Act
-            var result = await userService.UpdateUserInfoAsync(user.Id, Users.UserChangeTest1);
+            var result = await userFixture.userService.UpdateUserInfoAsync(user.Id, userFixture.UserChangeTest1);
 
             //Assert
             Assert.True(result.Equals(newUser));
 
-            A.CallTo(() => userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userRepository.UpdateUserInfoAsync(user)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.FindByIdAsync(user.Id.ToString())).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userRepository.UpdateUserInfoAsync(user)).MustHaveHappenedOnceExactly();
         }
     }
 }
