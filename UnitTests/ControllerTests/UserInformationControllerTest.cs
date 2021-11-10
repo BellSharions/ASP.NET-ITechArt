@@ -27,8 +27,8 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task GetUserPositive_NoCache_ReturnUserInfoDto()
         {
-            var user = userFixture.UserTest1;
-            var userInfo = userFixture.UserInfoTest1;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
+            var userInfo = userFixture.CorrectUserInfo;
             var okresult = new OkObjectResult(userInfo);
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())));
@@ -47,8 +47,8 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task GetUserPositive_HasCache_ReturnUserInfoDto()
         {
-            var user = userFixture.UserTest1;
-            var userInfo = userFixture.UserInfoTest1;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
+            var userInfo = userFixture.CorrectUserInfo;
             var okresult = new OkObjectResult(userInfo);
             var cacheExpiryOptions = new MemoryCacheEntryOptions
             {
@@ -73,9 +73,9 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task GetUserNegative_ReturnBadRequest()
         {
-            var user = userFixture.UserTest1;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
             var badresult = new BadRequestResult();
-            var userInfo = userFixture.UserInfoTest1;
+            var userInfo = userFixture.CorrectUserInfo;
 
             var userIdClaim = A.Fake<Claim>();
             A.CallTo(() => userFixture.httpContextAccessor.HttpContext.User.Claims).Returns(new List<Claim> { userIdClaim });
@@ -93,9 +93,9 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserInfoPositive_ReturnOk()
         {
-            var user = userFixture.UserTest6;
-            var userInfo = userFixture.UserInfoTest3;
-            var userChange = userFixture.UserChangeTest1;
+            var user = userFixture.CorrectUserWithChangedInformation;
+            var userInfo = userFixture.CorrectUserInfo;
+            var userChange = userFixture.UserInformationToChange;
             var okresult = new OkResult();
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())));
@@ -114,9 +114,9 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserInfoNegative_NoUser_ReturnBadRequest()
         {
-            var user = userFixture.UserTest6;
-            var userInfo = userFixture.UserInfoTest3;
-            var userChange = userFixture.UserChangeTest1;
+            var user = userFixture.CorrectUserWithChangedInformation;
+            var userInfo = userFixture.CorrectUserInfo;
+            var userChange = userFixture.UserInformationToChange;
             var okresult = new BadRequestResult();
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, "")));
@@ -135,9 +135,9 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserInfoNegative_ResultIsNull_ReturnBadRequest()
         {
-            var user = userFixture.UserTest6;
-            var userInfo = userFixture.UserInfoTest3;
-            var userChange = userFixture.UserChangeTest1;
+            var user = userFixture.CorrectUserWithChangedInformation;
+            var userInfo = userFixture.CorrectUserInfo;
+            var userChange = userFixture.UserInformationToChange;
             var nullUser = userFixture.NullUser;
             var okresult = new BadRequestResult();
 
@@ -157,11 +157,11 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordPositive_ReturnOk()
         {
-            var user = userFixture.UserTest6;
+            var user = userFixture.CorrectUserWithChangedInformation;
             var patchDoc = userFixture.jsonPatch;
             var okresult = new CreatedResult("", null);
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
-            var userPassword = userFixture.UserPasswordTest2;
+            var userPassword = userFixture.UserPasswordChange;
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())));
 
@@ -179,11 +179,11 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordNegative_NoUser_ReturnBadRequest()
         {
-            var user = userFixture.UserTest6;
+            var user = userFixture.CorrectUserWithChangedInformation;
             var patchDoc = userFixture.jsonPatch;
             var badResult = new BadRequestObjectResult("");
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
-            var userPassword = userFixture.UserPasswordTest2;
+            var userPassword = userFixture.UserPasswordChange;
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, "")));
 
@@ -201,11 +201,11 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordNegative_PatchDocIsNull_ReturnBadRequest()
         {
-            var user = userFixture.UserTest6;
+            var user = userFixture.CorrectUserWithChangedInformation;
             JsonPatchDocument<ChangePasswordUserDto> patchDoc = null;
             var badResult = new BadRequestObjectResult("");
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
-            var userPassword = userFixture.UserPasswordTest2;
+            var userPassword = userFixture.UserPasswordChange;
 
             var userIdClaim = A.Fake<Claim>(x => x.WithArgumentsForConstructor(() => new Claim(ClaimTypes.NameIdentifier, "")));
 

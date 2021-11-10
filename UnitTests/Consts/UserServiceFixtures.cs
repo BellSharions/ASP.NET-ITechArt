@@ -20,18 +20,16 @@ namespace UnitTests.Consts
 {
     public class UserServiceFixtures
     {
-        public User UserTest1 { get; set; }
-        public User UserTest2 { get; set; }
-        public User UserTest6 { get; set; }
+        public User CorrectUserWithConfirmedEmail { get; set; }
+        public User CorrectUserWithNotConfirmedEmail { get; set; }
+        public User CorrectUserWithChangedInformation { get; set; }
         public User NullUser { get; set; }
         public CreateUserModel UserCreationTest1 { get; set; }
-        public CreateUserModel UserCreationTest2 { get; set; }
-        public CreateUserModel UserCreationTest4 { get; set; }
-        public ChangeUserInfoDto UserChangeTest1 { get; set; }
-        public ChangePasswordUserDto UserPasswordTest1 { get; set; }
-        public UserInfoDto UserInfoTest1 { get; set; }
-        public UserInfoDto UserInfoTest3 { get; set; }
-        public ChangeUserInfoDto UserInfoTest2 { get; set; }
+        public CreateUserModel UserWithChangedPassword { get; set; }
+        public CreateUserModel UserWithWrongPassword { get; set; }
+        public ChangeUserInfoDto UserInformationToChange { get; set; }
+        public ChangePasswordUserDto UserPasswordChange { get; set; }
+        public UserInfoDto CorrectUserInfo { get; set; }
         public ChangePasswordUserDto UserPasswordTest2 { get; set; }
         public IUserRepository userRepository { get; set; }
         public ISmtpService smtpService { get; set; }
@@ -51,7 +49,7 @@ namespace UnitTests.Consts
 
         public UserServiceFixtures()
         {
-            UserTest1 = new()
+            CorrectUserWithConfirmedEmail = new()
             {
                 Id = 5,
                 UserName = "Bell",
@@ -63,7 +61,7 @@ namespace UnitTests.Consts
                 PhoneNumber = "375293798389",
                 PasswordHash = "Ugfkr23dff@FDDFFF"
             };
-            UserTest2 = new()
+            CorrectUserWithNotConfirmedEmail = new()
             {
                 Id = 5,
                 UserName = "Bell",
@@ -75,7 +73,7 @@ namespace UnitTests.Consts
                 PhoneNumber = "375293798389",
                 PasswordHash = "Ugfkr23dff@FDDFFF"
             };
-            UserTest6 = new()
+            CorrectUserWithChangedInformation = new()
             {
                 Id = 5,
                 UserName = "BelL",
@@ -96,7 +94,7 @@ namespace UnitTests.Consts
                 PhoneNumber = "375293798389",
                 Password = "12345678Bb#"
             };
-            UserCreationTest2 = new()
+            UserWithChangedPassword = new()
             {
                 UserName = "Bell",
                 AdressDelivery = "test",
@@ -104,7 +102,7 @@ namespace UnitTests.Consts
                 PhoneNumber = "375293798389",
                 Password = "13345678Bb#"
             };
-            UserCreationTest4 = new()
+            UserWithWrongPassword = new()
             {
                 UserName = "Bell",
                 AdressDelivery = "test",
@@ -112,39 +110,27 @@ namespace UnitTests.Consts
                 PhoneNumber = "375293798389",
                 Password = "wrong"
             };
-            UserChangeTest1 = new()
+            UserInformationToChange = new()
             {
                 UserName = "BelL",
                 AdressDelivery = "tesT",
                 Email = "bellsharions@gmail.com",
                 PhoneNumber = "375293798389"
             };
-            UserPasswordTest1 = new()
+            UserPasswordChange = new()
             {
-                Id = 5,
+                Id = 1,
                 OldPassword = "13345678Bb#",
                 NewPassword = "12345678Bb#"
             };
-            UserInfoTest1 = new()
+            CorrectUserInfo = new()
             {
                 UserName = "Bell",
                 AdressDelivery = "test",
                 Email = "bellsharions@gmail.com",
                 PhoneNumber = "375293798389"
             };
-            UserInfoTest3 = new()
-            {
-                UserName = "BelL",
-                AdressDelivery = "tesT",
-                Email = "bellsharions@gmail.com",
-                PhoneNumber = "375293798389"
-            };
-            UserPasswordTest2 = new()
-            {
-                Id = 1,
-                OldPassword = "test",
-                NewPassword = "test2"
-            };
+
             userRepository = A.Fake<IUserRepository>();
             smtpService = A.Fake<ISmtpService>();
             mapper = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>()).CreateMapper();

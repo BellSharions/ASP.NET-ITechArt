@@ -15,22 +15,17 @@ namespace UnitTests.Consts
 {
     public class OrderServiceFixtures
     {
-        public Order TestOrderWithProducts1 { get; set; }
-        public Order TestOrderWithProducts2 { get; set; }
-        public Order TestOrderWithProducts3 { get; set; }
-        public Order TestOrderNoProducts1 { get; set; }
+        public Order CorrectOrderWithProducts1 { get; set; }
+        public Order CorrectOrderWithProducts2 { get; set; }
+        public Order CorrectOrderWithNoProducts { get; set; }
         public Order NullOrder { get; set; }
-        public OrderInfoDto TestOrderInfo1 { get; set; }
-        public OrderInfoDto TestOrderInfo2 { get; set; }
-        public OrderInfoDto TestOrderInfo3 { get; set; }
-        public OrderCreationDto TestOrderCreation1 { get; set; }
-        public OrderItemsDeletionDto TestOrderDeletionInfo1 { get; set; }
-        public OrderList TestOrderList1 { get; set; }
-        public OrderList TestOrderList2 { get; set; }
-        public OrderList OrderListTest1 { get; set; }
-        public OrderList OrderListTest2 { get; set; }
-        public OrderList OrderListTest3 { get; set; }
-        public OrderAmountChangeDto OrderAmountTest2 { get; set; }
+        public OrderInfoDto CorrectOrderInfo { get; set; }
+        public OrderCreationDto CorrectOrderCreation { get; set; }
+        public OrderItemsDeletionDto TestOrderDeletionInfo { get; set; }
+        public OrderList CorrectOrderInfoWithProduct1 { get; set; }
+        public OrderList CorrectOrderInfoWithProduct2 { get; set; }
+        public OrderList CorrectOrderList { get; set; }
+        public OrderAmountChangeDto OrderAmountTest { get; set; }
         public IOrderRepository orderRepository { get; set; }
         public IMapper mapper { get; set; }
         public OrderService orderService { get; set; }
@@ -39,7 +34,7 @@ namespace UnitTests.Consts
         public ServiceResult serviceResultCreated { get; set; }
         public OrderServiceFixtures()
         {
-            TestOrderWithProducts1 = new()
+            CorrectOrderWithProducts1 = new()
             {
                 UserId = 1,
                 Amount = 4,
@@ -48,7 +43,7 @@ namespace UnitTests.Consts
                 OrderList = new List<OrderList>(),
                 Status = OrderStatus.Unpaid,
             };
-            TestOrderWithProducts2 = new()
+            CorrectOrderWithProducts2 = new()
             {
                 UserId = 1,
                 Amount = 2,
@@ -57,68 +52,17 @@ namespace UnitTests.Consts
                 OrderList = new List<OrderList>(),
                 Status = OrderStatus.Unpaid,
             };
-            TestOrderWithProducts3 = new()
-            {
-                UserId = 1,
-                Amount = 4,
-                CreationDate = DateTime.Now,
-                OrderId = 3,
-                OrderList = new List<OrderList>(),
-                Status = OrderStatus.Unpaid,
-            };
             NullOrder = null;
-            TestOrderNoProducts1 = new()
+            CorrectOrderWithNoProducts = new()
             {
-                UserId = 1,
+                UserId = 2,
                 Amount = 4,
                 CreationDate = DateTime.Now,
                 OrderId = 1,
                 OrderList = new List<OrderList>(),
                 Status = OrderStatus.Unpaid,
             };
-            TestOrderInfo1 = new()
-            {
-                Amount = 4,
-                CreationDate = DateTime.Now,
-                Status = OrderStatus.Unpaid,
-                ProductInfo = new List<ProductInfoDto>
-                { 
-                new()
-                {
-                    Name = "Genshin Impact",
-                    Platform = "PC",
-                    TotalRating = 87,
-                    Genre = "Adventure",
-                    Rating = "PEGI16",
-                    Logo = "",
-                    Background = "",
-                    Price = 1,
-                    Count = 150
-                }
-                }
-            };
-            TestOrderInfo2 = new()
-            {
-                Amount = 4,
-                CreationDate = DateTime.Now,
-                Status = OrderStatus.Unpaid,
-                ProductInfo = new List<ProductInfoDto>
-            {
-                new()
-                {
-                    Name = "Genshin Impact",
-                    Platform = "PC",
-                    TotalRating = 87,
-                    Genre = "Adventure",
-                    Rating = "PEGI16",
-                    Logo = "",
-                    Background = "",
-                    Price = 1,
-                    Count = 150
-                }
-            }
-            };
-            TestOrderInfo3 = new()
+            CorrectOrderInfo = new()
             {
                 Amount = 4,
                 CreationDate = DateTime.Now,
@@ -139,13 +83,13 @@ namespace UnitTests.Consts
                 }
             }
             };
-            TestOrderCreation1 = new()
+            CorrectOrderCreation = new()
             {
                 Amount = 4,
                 UserId = 1,
                 OrderList = new List<OrderList>()
             };
-            TestOrderDeletionInfo1 = new()
+            TestOrderDeletionInfo = new()
             {
                 UserId = 1,
                 ProductId = new List<int>
@@ -153,7 +97,7 @@ namespace UnitTests.Consts
                 1, 2
             }
             };
-            TestOrderList1 = new()
+            CorrectOrderInfoWithProduct1 = new()
             {
                 Amount = 4,
                 OrderId = 1,
@@ -172,7 +116,7 @@ namespace UnitTests.Consts
                     Count = 150
                 }
             };
-            TestOrderList2 = new()
+            CorrectOrderInfoWithProduct2 = new()
             {
                 Amount = 4,
                 OrderId = 1,
@@ -191,33 +135,21 @@ namespace UnitTests.Consts
                     Count = 99
                 }
             };
-            OrderListTest1 = new()
+            CorrectOrderList = new()
             {
                 ProductId = 1,
                 Amount = 2,
                 OrderId = 1
             };
-            OrderListTest2 = new()
-            {
-                ProductId = 2,
-                Amount = 2,
-                OrderId = 1
-            };
-            OrderListTest3 = new()
-            {
-                ProductId = 1,
-                Amount = 2,
-                OrderId = 1
-            };
-            OrderAmountTest2 = new()
+            OrderAmountTest = new()
             {
                 ProductId = 2,
                 Amount = 2,
                 UserId = 1
             };
-            TestOrderWithProducts1.OrderList.Add(TestOrderList1);
-            TestOrderWithProducts2.OrderList.Add(OrderListTest2);
-            TestOrderWithProducts3.OrderList.Add(TestOrderList2);
+            CorrectOrderWithProducts1.OrderList.Add(CorrectOrderInfoWithProduct1);
+            CorrectOrderWithProducts2.OrderList.Add(CorrectOrderInfoWithProduct2);
+
             orderRepository = A.Fake<IOrderRepository>();
             Fake.ClearRecordedCalls(orderRepository);
             mapper = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>()).CreateMapper();

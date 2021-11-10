@@ -27,9 +27,9 @@ namespace UnitTests.ServiceTests
         {
             var count = 3;
             var platforms = new List<TopPlatformDto>();
-            platforms.Add(productFixture.TopTest1);
-            platforms.Add(productFixture.TopTest2);
-            platforms.Add(productFixture.TopTest3);
+            platforms.Add(productFixture.TopPlatformInfo1);
+            platforms.Add(productFixture.TopPlatformInfo2);
+            platforms.Add(productFixture.TopPlatformInfo3);
 
 
             A.CallTo(() => productFixture.productRepository.GetTopPlatformsAsync(count)).Returns(platforms);
@@ -47,7 +47,7 @@ namespace UnitTests.ServiceTests
         public async Task GetProductByIdPositive_ReturnProduct()
         {
 
-            var product = productFixture.TestProduct1;
+            var product = productFixture.CorrectProduct1;
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
 
@@ -73,7 +73,7 @@ namespace UnitTests.ServiceTests
         public async Task GetProductInfoByIdAsyncPositive_ReturnProductInfoDto()
         {
 
-            var product = productFixture.TestProduct1;
+            var product = productFixture.CorrectProduct1;
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
 
@@ -113,13 +113,13 @@ namespace UnitTests.ServiceTests
         public async Task ListProductAsyncPositive_ReturnListProductPageDto()
         {
 
-            var list = productFixture.TestListPage1;
+            var list = productFixture.CorrectListPage;
             var data = new ProductListFilteredDto();
             data.Products = new List<Product>();
-            data.Products.Add(productFixture.TestProduct1);
-            data.Products.Add(productFixture.TestProduct2);
+            data.Products.Add(productFixture.CorrectProduct1);
+            data.Products.Add(productFixture.CorrectProduct2);
             data.Total = 2;
-            var result = productFixture.TestPage1;
+            var result = productFixture.CorrectProductPage;
 
             A.CallTo(() => productFixture.productRepository.ListProductPageAsync(list)).Returns(data);
 
@@ -174,15 +174,15 @@ namespace UnitTests.ServiceTests
 
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
 
-            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).Returns(true);
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.CorrectProduct1)).Returns(true);
 
             //Act
-            var result = await productFixture.productService.CreateProductAsync(productFixture.TestCreation1);
+            var result = await productFixture.productService.CreateProductAsync(productFixture.CorrectProductCreation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).MustHaveHappenedOnceOrLess();
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.CorrectProduct1)).MustHaveHappenedOnceOrLess();
         }
         [Fact]
         public async Task CreateProductAsyncNegative_ReturnServiceResultWithBadRequest()
@@ -190,7 +190,7 @@ namespace UnitTests.ServiceTests
             var nullProduct = new Product();
             var serviceResult = new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
-            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.CorrectProduct1)).Returns(false);
 
             //Act
             var result = await productFixture.productService.CreateProductAsync(new ProductCreationDto());
@@ -198,7 +198,7 @@ namespace UnitTests.ServiceTests
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
 
-            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.TestProduct1)).MustNotHaveHappened();
+            A.CallTo(() => productFixture.productRepository.CreateAsync(productFixture.CorrectProduct1)).MustNotHaveHappened();
         }
         [Fact]
         public async Task DeleteRatingAsyncPositive_ReturnServiceResultWithOK()
@@ -246,7 +246,7 @@ namespace UnitTests.ServiceTests
             A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(true);
 
             //Act
-            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreation1);
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.CorrectRatingCreation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
@@ -264,7 +264,7 @@ namespace UnitTests.ServiceTests
             A.CallTo(() => productFixture.ratingRepository.CreateAsync(A<ProductRating>.Ignored)).Returns(false);
 
             //Act
-            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.TestRatingCreation1);
+            var result = await productFixture.productService.AddRatingAsync(userId, productFixture.CorrectRatingCreation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
@@ -310,10 +310,10 @@ namespace UnitTests.ServiceTests
         public async Task SearchProductByNameAsyncPositive_ReturnSearchResult()
         {
 
-            var searchList = productFixture.TestSearchList1;
+            var searchList = productFixture.CorrectSearchList;
 
 
-            A.CallTo(() => productFixture.productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).Returns(productFixture.TestList1);
+            A.CallTo(() => productFixture.productRepository.GetProductByNameAsync("Genshin Impact", 1, 0)).Returns(productFixture.CorrectListOfProducts);
 
             //Act
             var result = await productFixture.productService.SearchProductByNameAsync("Genshin Impact", 1, 0);
@@ -343,14 +343,14 @@ namespace UnitTests.ServiceTests
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
             var nullRating = new ProductRating();
-            var product = productFixture.TestProduct1;
+            var product = productFixture.CorrectProduct1;
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
-            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.TestProduct3.Logo)).Returns(serviceResult);
-            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(true);
+            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.ProductWithNull.Logo)).Returns(serviceResult);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.CorrectProduct1)).Returns(true);
 
             //Act
-            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.CorrectChangeInformation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
@@ -364,13 +364,13 @@ namespace UnitTests.ServiceTests
             int userId = 1;
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullRating = new ProductRating();
-            var product = productFixture.TestProduct1;
+            var product = productFixture.CorrectProduct1;
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(product.Id)).Returns(product);
-            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.CorrectProduct1)).Returns(false);
 
             //Act
-            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.CorrectChangeInformation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
@@ -387,7 +387,7 @@ namespace UnitTests.ServiceTests
             var nullProduct = new Product();
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
-            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.CorrectProduct1)).Returns(false);
 
             //Act
             var result = await productFixture.productService.ChangeProductInfoAsync(userId, null);
@@ -406,10 +406,10 @@ namespace UnitTests.ServiceTests
             var nullProduct = new Product();
 
             A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(nullProduct.Id)).Returns(nullProduct);
-            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct1)).Returns(false);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.CorrectProduct1)).Returns(false);
 
             //Act
-            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(userId, productFixture.CorrectChangeInformation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);
@@ -422,11 +422,11 @@ namespace UnitTests.ServiceTests
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
             var nullProduct = new Product();
 
-            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(productFixture.TestProduct3.Id)).Returns(productFixture.TestProduct3);
-            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.TestProduct3)).Returns(false);
-            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.TestProduct3.Logo)).Returns(serviceResult);
+            A.CallTo(() => productFixture.productRepository.GetProductByIdAsync(productFixture.ProductWithNull.Id)).Returns(productFixture.ProductWithNull);
+            A.CallTo(() => productFixture.productRepository.UpdateItemAsync(productFixture.ProductWithNull)).Returns(false);
+            A.CallTo(() => productFixture.cloudinaryService.DeleteImage(productFixture.ProductWithNull.Logo)).Returns(serviceResult);
             //Act
-            var result = await productFixture.productService.ChangeProductInfoAsync(2, productFixture.TestChange1);
+            var result = await productFixture.productService.ChangeProductInfoAsync(2, productFixture.CorrectChangeInformation);
 
             //Assert
             Assert.Equal(serviceResult.Type, result.Type);

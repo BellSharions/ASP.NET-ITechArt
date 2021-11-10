@@ -74,7 +74,7 @@ namespace Business.Services
         public async Task<ServiceResult> BuyAsync(int orderId, int userId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            if (order != null || userId != order.UserId)
+            if (order == null || userId != order.UserId)
                 return new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
             if(await _orderRepository.BuyAsync(orderId))
