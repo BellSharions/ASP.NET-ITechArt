@@ -157,7 +157,7 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordPositive_ReturnOk()
         {
-            var user = userFixture.CorrectUserWithChangedInformation;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
             var patchDoc = userFixture.jsonPatch;
             var okresult = new CreatedResult("", null);
             var serviceResult = new ServiceResult(ResultType.Success, "Success");
@@ -179,7 +179,7 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordNegative_NoUser_ReturnBadRequest()
         {
-            var user = userFixture.CorrectUserWithChangedInformation;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
             var patchDoc = userFixture.jsonPatch;
             var badResult = new BadRequestObjectResult("");
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
@@ -201,7 +201,7 @@ namespace UnitTests.ControllerTests
         [Fact]
         public async Task ChangeUserPasswordNegative_PatchDocIsNull_ReturnBadRequest()
         {
-            var user = userFixture.CorrectUserWithChangedInformation;
+            var user = userFixture.CorrectUserWithConfirmedEmail;
             JsonPatchDocument<ChangePasswordUserDto> patchDoc = null;
             var badResult = new BadRequestObjectResult("");
             var serviceResult = new ServiceResult(ResultType.BadRequest, "");
