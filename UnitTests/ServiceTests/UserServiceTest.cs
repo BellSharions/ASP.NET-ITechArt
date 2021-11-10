@@ -91,7 +91,7 @@ namespace UnitTests
             A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(true);
 
             //Act
-            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest1);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest);
 
             //Assert
             Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
@@ -109,7 +109,7 @@ namespace UnitTests
             A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "12345678Bb#")).Returns(false);
 
             //Act
-            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest1);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserCreationTest);
 
             //Assert
             Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
@@ -123,16 +123,16 @@ namespace UnitTests
             var user = userFixture.CorrectUserWithConfirmedEmail;
 
             A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
-            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "13345678Bb#")).Returns(false);
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "wrong")).Returns(false);
 
             //Act
-            var result = await userFixture.userService.SigninAsync(userFixture.UserWithChangedPassword);
+            var result = await userFixture.userService.SigninAsync(userFixture.UserWithWrongPassword);
 
             //Assert
             Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);
 
             A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "13345678Bb#")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => userFixture.userManager.CheckPasswordAsync(user, "wrong")).MustHaveHappenedOnceExactly();
         }
         [Fact]
         public async Task SigninAsyncNegative_WrongEmail_ReturnServiceResultWithOk()
@@ -177,7 +177,7 @@ namespace UnitTests
             A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(userFixture.NullUser);
 
             //Act
-            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest1);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest);
 
             //Assert
             Assert.Equal(userFixture.serviceResultOk.Type, result.Type);
@@ -192,7 +192,7 @@ namespace UnitTests
             A.CallTo(() => userFixture.userManager.FindByEmailAsync(user.Email)).Returns(user);
 
             //Act
-            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest1);
+            var result = await userFixture.userService.RegisterAsync(userFixture.UserCreationTest);
 
             //Assert
             Assert.Equal(userFixture.serviceResultBadRequest.Type, result.Type);

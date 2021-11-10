@@ -24,7 +24,7 @@ namespace UnitTests.Consts
         public User CorrectUserWithNotConfirmedEmail { get; set; }
         public User CorrectUserWithChangedInformation { get; set; }
         public User NullUser { get; set; }
-        public CreateUserModel UserCreationTest1 { get; set; }
+        public CreateUserModel UserCreationTest { get; set; }
         public CreateUserModel UserWithChangedPassword { get; set; }
         public CreateUserModel UserWithWrongPassword { get; set; }
         public ChangeUserInfoDto UserInformationToChange { get; set; }
@@ -86,7 +86,7 @@ namespace UnitTests.Consts
                 PasswordHash = "Ugfkr23dff@FDDFFF"
             };
             NullUser = null;
-            UserCreationTest1 = new()
+            UserCreationTest = new()
             {
                 UserName = "Bell",
                 AdressDelivery = "test",
