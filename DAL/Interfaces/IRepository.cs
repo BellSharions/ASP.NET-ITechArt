@@ -7,8 +7,8 @@ namespace DAL.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> CreateAsync(T item);
-        Task<T> UpdateItemAsync(T item);
+        Task<bool> CreateAsync(T item);
+        Task<bool> UpdateItemAsync(T item);
         Task<bool> DeleteAsync(Expression<Func<T, bool>> expression);
     }
 }

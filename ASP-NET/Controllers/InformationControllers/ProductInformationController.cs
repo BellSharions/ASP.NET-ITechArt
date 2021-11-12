@@ -119,7 +119,7 @@ namespace ASP_NET.Controllers.InformationControllers
         [SwaggerResponse(400, "Product was not deleted")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var result = await _productService.DeleteProduct(id);
+            var result = await _productService.DeleteProductAsync(id);
             if (result.Type.ToString() == "BadRequest")
                 return BadRequest(result.Message);
             return Ok(result.Message);

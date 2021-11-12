@@ -1,6 +1,8 @@
 ﻿using Business.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using DAL.Entities.Models;
+using DAL.Enums;
 using Microsoft.Extensions.Options;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -43,7 +45,7 @@ namespace Business.Services
             return uploadResult.SecureUrl.AbsoluteUri.ToString();
         }
 
-        public async Task<string> DeleteImage(string imageUrl)
+        public async Task<ServiceResult> DeleteImage(string imageUrl)
         {
             var publicId = Regex.Matches(imageUrl, _regexPublicId)[0].Value.Split(".")[0];
             var uploadResult = new DeletionResult();
@@ -53,9 +55,11 @@ namespace Business.Services
                 var uploadParams = new DeletionParams(publicId);
 
                 uploadResult = await _cloudinary.DestroyAsync(uploadParams);
-            }
 
-            return uploadResult.StatusCode.ToString();
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK )
+                    return new ServiceResult(ResultType.Success, "Success");
+                return new ServiceResult(ResultType.BadRequest, "Deletion was haulted");
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Business.Services
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
 
             var foundOrder = await _orderRepository.GetOrderByIdAsync(OrderId);
-            if (foundOrder == null || foundOrder.Status == OrderStatus.Paid)
+            if (foundOrder == null)
                 return new ServiceResult(ResultType.BadRequest, "No order was found");
 
             if(foundOrder.OrderList.FirstOrDefault(u => u.ProductId == info.ProductId) == null)
@@ -40,13 +40,15 @@ namespace Business.Services
 
         public async Task<ServiceResult> CreateOrderAsync(OrderCreationDto info)
         {
-            if (info == null)
+            if (info.OrderList == null)
                 return new ServiceResult(ResultType.BadRequest, "Invalid information");
             var order = new Order();
             _mapper.Map(info, order);
 
-            await _orderRepository.CreateAsync(order);
-            return new ServiceResult(ResultType.Success, "Success");
+            var result = await _orderRepository.CreateAsync(order);
+            if(result)
+                return new ServiceResult(ResultType.Success, "Success");
+            return new ServiceResult(ResultType.BadRequest, "Creation was not completed");
         }
 
         public async Task<ServiceResult> DeleteItems(int id, OrderItemsDeletionDto info)
@@ -72,12 +74,12 @@ namespace Business.Services
         public async Task<ServiceResult> BuyAsync(int orderId, int userId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            if (userId != order.UserId)
+            if (order == null || userId != order.UserId)
                 return new ServiceResult(ResultType.BadRequest, "Invalid Id");
 
             if(await _orderRepository.BuyAsync(orderId))
                 return new ServiceResult(ResultType.Success, "Success");
-            return new ServiceResult(ResultType.BadRequest, "Invalid Id");
+            return new ServiceResult(ResultType.BadRequest, "Buying action was haulted");
         }
     }
 }

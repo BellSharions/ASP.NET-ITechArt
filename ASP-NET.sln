@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		publish.ps1 = publish.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,14 @@ Global
 		{1028742B-B2F4-4A24-B4D1-6E628845E566}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1028742B-B2F4-4A24-B4D1-6E628845E566}.Release|x86.ActiveCfg = Release|x86
 		{1028742B-B2F4-4A24-B4D1-6E628845E566}.Release|x86.Build.0 = Release|x86
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Debug|x86.Build.0 = Debug|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Release|x86.ActiveCfg = Release|Any CPU
+		{01FB9861-6DB8-45BF-B866-3D6069CB8CAE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
