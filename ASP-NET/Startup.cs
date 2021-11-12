@@ -113,7 +113,6 @@ namespace ASP_NET
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
